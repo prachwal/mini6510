@@ -39,3 +39,10 @@ or an explicit `DrvLoad`), never bundled into the PRG.
 - **Bigger drivers:** split into a core (one block) plus optional parts loaded the same way, or keep them built into the BIOS/ROM.
   Transports (IEC/TCBM) stay built in, they are larger than a block and are needed before any disk can be read.
 - **Good fits:** printer (`lp`), clock, small device filters. Open: unload policy (default: LIFO, or free on last close).
+
+## Candidate: tape (Datasette, `/dev/tap`)
+Platforms: C64 (port `$01`: motor bit 5, sense bit 4, write bit 3, read via CIA1 FLAG `$DC0D`), Plus/4 (port `$01`: motor bit 3, sense bit 2, write bit 1, read bit 4 via TED/port). PET has its own cassette ports (VIA/PIA).
+- **Block device over tape:** 256 B blocks, sequential access only, so `ReadBlock`/`WriteBlock` work as "next block" with a header per block (block number, checksum), no random access. A tape is a poor system disk, good for backup (`tar`-like `cat dir > /dev/tap`) and loading single programs.
+- **Format:** own pulse encoding timed by a CIA/TED timer (short/medium/long pulses as in the KERNAL, but without it), data block + repeat block + checksum, a lead-in tone to sync the speed. Compatible with KERNAL files is optional (default: no).
+- **Package size:** the 1-block limit (256 B) is tight for read + write + timing: split into `tapr` (read) and `tapw` (write), loaded on demand. Timing-critical loops run with interrupts off and the screen blanked (C64 `$D011` bit 4, Plus/4 `$FF06` bit 4).
+- **Testing:** VICE can attach a `.tap`/`.t64` image (`-attach`), so write then read-back can be tested by comparing the image. Open: pulse timing for 1.0 vs PAL/NTSC (default: PAL).

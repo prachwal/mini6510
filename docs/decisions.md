@@ -47,3 +47,6 @@ Jądro `os/kernel.s` ma ok. 7,2 KB. Plan: (1) pomiar rozmiaru po funkcjach z map
 
 ## 2026-10-11 — Ładowalne sterowniki + drukarka (na później, do potwierdzenia)
 Pakiety na dysku (`/lib/drv`), ładowane w miarę potrzeby, max 1 blok (256 B), relokacja stronicowa (tylko starsze bajty adresów). Sterownik ładowany z dysku do obszaru RAM z automatyczną relokacją (tabela poprawek adresów w pliku modułu) i rejestrowany w tablicy sterowników (nazwa, tablica wejść, adres, rozmiar); jądro używa urządzeń przez tablicę (`/dev/lp`). Transport startowy zostaje w BIOS-ie/ROM-ie. Pierwszy kandydat: drukarka IEC (adres 4). Opis: `docs/drivers.md`.
+
+## 2026-10-11 — Sterownik taśmy (na później, do potwierdzenia)
+Kolejny sterownik ładowalny: magnetofon (`/dev/tap`), dostęp sekwencyjny, bloki 256 B z nagłówkiem i sumą kontrolną, własne kodowanie impulsów (bez KERNAL), podział na pakiety `tapr`/`tapw` (limit 1 blok). Test w VICE przez obraz `.tap`. Opis: `docs/drivers.md`.
