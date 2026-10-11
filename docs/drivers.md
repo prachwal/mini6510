@@ -46,3 +46,9 @@ Platforms: C64 (port `$01`: motor bit 5, sense bit 4, write bit 3, read via CIA1
 - **Format:** own pulse encoding timed by a CIA/TED timer (short/medium/long pulses as in the KERNAL, but without it), data block + repeat block + checksum, a lead-in tone to sync the speed. Compatible with KERNAL files is optional (default: no).
 - **Package size:** the 1-block limit (256 B) is tight for read + write + timing: split into `tapr` (read) and `tapw` (write), loaded on demand. Timing-critical loops run with interrupts off and the screen blanked (C64 `$D011` bit 4, Plus/4 `$FF06` bit 4).
 - **Testing:** VICE can attach a `.tap`/`.t64` image (`-attach`), so write then read-back can be tested by comparing the image. Open: pulse timing for 1.0 vs PAL/NTSC (default: PAL).
+
+## Decision: minimal per-machine core may be a monolith
+Confirmed by the user (2026-10-11). Per machine only the **start** is required and it may be one monolith: boot code, BIOS (video,
+keyboard, interrupts, first block transport) and the kernel core. Everything beyond that (extra transports, printer, tape, clock,
+filters, utilities) is a loadable package or a program. A new port therefore needs: the monolithic core for the machine
+plus the packages that apply to it; shared packages stay identical across machines where the hardware is the same (e.g. IEC printer).

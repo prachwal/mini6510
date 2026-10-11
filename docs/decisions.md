@@ -50,3 +50,6 @@ Pakiety na dysku (`/lib/drv`), ładowane w miarę potrzeby, max 1 blok (256 B), 
 
 ## 2026-10-11 — Sterownik taśmy (na później, do potwierdzenia)
 Kolejny sterownik ładowalny: magnetofon (`/dev/tap`), dostęp sekwencyjny, bloki 256 B z nagłówkiem i sumą kontrolną, własne kodowanie impulsów (bez KERNAL), podział na pakiety `tapr`/`tapw` (limit 1 blok). Test w VICE przez obraz `.tap`. Opis: `docs/drivers.md`.
+
+## 2026-10-11 — Rdzeń na maszynę może być monolitem
+Minimum na maszynę to start (boot + BIOS + rdzeń jądra), może być monolitem. Reszta (transporty dodatkowe, drukarka, taśma, zegar, filtry) jako ładowalne pakiety lub programy. Opis: `docs/drivers.md`.
