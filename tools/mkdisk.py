@@ -2,7 +2,7 @@ import glob, os
 from sfs import Disk
 k = open('kernel.bin', 'rb').read()
 d = Disk('disk.img', blocks=2048)
-d.format(k, load=0x0400, entry=int(open("entry.txt").read(), 16))
+d.format(k, load=int(os.environ.get('KBASE', 0x0400)), entry=int(open("entry.txt").read(), 16))
 d.mkdir('/bin')
 d.put('README.TXT', b'MiniUnix: prosty system dla 6510.\nPliki ciagle, bloki 256 B.\n')
 d.put('NOTES.TXT', b'ls, cat, echo, clear, ver, help\nProgramy: /bin/NAME.COM\n')

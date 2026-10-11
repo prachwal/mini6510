@@ -2,13 +2,13 @@
 """Build (unless --no-build) and run all test suites against the Python machine model.
 
 Usage: python scripts/test.py [--no-build] [name ...]     e.g.  python scripts/test.py dir mt
-Each suite runs with ./build as the working directory (they read bios.rom, kernel.bin, disk.img).
+Each suite runs with ./build/generic as the working directory (they read bios.rom, kernel.bin, disk.img).
 """
 import os, re, subprocess, sys, time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BUILD = ROOT / 'build'
+BUILD = ROOT / 'build' / 'generic'
 # (label, script, success marker regex)
 SUITES = [
     ('post',    ROOT / 'sim' / 'harness.py',    r'WYNIK: WSZYSTKO OK'),
@@ -22,13 +22,16 @@ SUITES = [
     ('big',     ROOT / 'tests' / 'test_big.py',     r'BIG zgodny: True[\s\S]*EXACT zgodny: True'),
     ('dir',     ROOT / 'tests' / 'test_dir.py',     r'WYNIK: OK'),
     ('examples', ROOT / 'tests' / 'test_examples.py', r'WYNIK: OK'),
+    ('c64-vice', ROOT / 'tests' / 'test_c64_vice.py', r'WYNIK: OK|SKIP'),   # needs x64sc + Xvfb + xdotool
 ]
 
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     if '--no-build' not in sys.argv:
-        subprocess.run([sys.executable, str(ROOT / 'scripts' / 'build.py')], check=True, stdout=subprocess.DEVNULL)
+        for plat in ('generic', 'c64'):
+            subprocess.run([sys.executable, str(ROOT / 'scripts' / 'build.py'), '--platform', plat],
+                           check=True, stdout=subprocess.DEVNULL)
     env = dict(os.environ, PYTHONPATH=os.pathsep.join(str(ROOT / d) for d in ('sim', 'tools', 'tests')))
     failed = []
     for name, script, marker in SUITES:

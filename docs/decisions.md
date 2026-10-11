@@ -21,3 +21,6 @@ Format: data, decyzja, status (potwierdzona / do potwierdzenia).
 - Ekran i klawiatura: terminal ANSI/VT100 przez konsolę szeregową, bez osobnego urządzenia wideo. Rozmiar 80×24 jako domyślny, do potwierdzenia. Status: wskazane przez użytkownika (2026-10-11).
 - Dysk: interfejs blokowy (numer bloku 16 bit, blok 256 B, transfer do bufora w RAM, `$DF10–$DF18`), zamiast interfejsu wzorowanego na WD179x. Status: wskazane przez użytkownika (2026-10-11), szczegóły rejestrów do potwierdzenia.
 - Alternatywa dla CP/M: własny OS (bootloader, sterowniki, wywołania systemowe, prosty FS, loader, shell). Propozycja: własny OS na 6502. Status: do potwierdzenia.
+
+## 2026-10-11 — Port C64
+Platformy rozdzielone na `bios/` + `platforms/<nazwa>/`; jądro zależy tylko od `bios.inc` i `platform.inc`. Dysk C64 = REU. Zatwierdzone przez użytkownika: refaktoryzacja pod C64 i test w emulatorze.

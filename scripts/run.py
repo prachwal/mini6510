@@ -8,7 +8,7 @@ import argparse, os, sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-BUILD = ROOT / 'build'
+BUILD = ROOT / 'build' / 'generic'
 for d in ('sim', 'tools'):
     sys.path.insert(0, str(ROOT / d))
 os.chdir(BUILD)

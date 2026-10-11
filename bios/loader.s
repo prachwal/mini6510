@@ -11,12 +11,12 @@
 ; Limit czasu operacji dysku: 65536 obiegów (ok. 16 cykli każdy, ok. 1 s przy 1 MHz).
 
         .include "bios.inc"
+        .include "hw.inc"        ; IO_START_HI, LOAD_MIN_HI (platforma)
         .import PrintStr, PutChar, PutCRLF
-        .export LoadSystem, ReadBlk, WriteBlk
+        .import LdrRead          ; platforma: czytaj blok z napędu 0 (X/Y = blok, ptr = bufor), C=1 błąd
+        .export LoadSystem
 
 HDR         = $0200             ; bufor nagłówka (przetestowany RAM)
-LOAD_MIN_HI = $02
-IO_START_HI = $D8
 
         .segment "BIOS"
 
@@ -29,16 +29,13 @@ LoadSystem:
         sta ptr2+1
         jsr PrintStr
 
-        lda #0
-        sta BLK_UNIT            ; napęd 0
-
         lda #<HDR               ; blok 0 -> HDR
         sta ptr
         lda #>HDR
         sta ptr+1
         ldx #0
         ldy #0
-        jsr ReadBlk
+        jsr LdrRead
         bcs Fail                ; A = kod błędu
 
         ; ---- walidacja nagłówka ----
@@ -69,7 +66,7 @@ LoadSystem:
 
         ldx #1                  ; numer bloku danych
 @next:  ldy #0
-        jsr ReadBlk             ; X, Y = numer bloku, ptr = adres bufora (X zachowany)
+        jsr LdrRead             ; X, Y = numer bloku, ptr = adres bufora (X zachowany)
         bcs Fail
         inc ptr+1               ; następne 256 B
         dec ldr_cnt
@@ -96,46 +93,6 @@ Fail:                           ; A = kod błędu
         jsr PutChar
         jsr PutCRLF
 @halt:  jmp @halt
-
-; ---- czytanie bloku ----
-; Wejście: X = numer bloku (lo), Y = numer bloku (hi), ptr = adres bufora.
-; Wyjście: C=0 OK. C=1 błąd, A = kod (1-5 z urządzenia, ERR_TIMEOUT przy limicie czasu).
-; X zachowany.
-ReadBlk:
-        lda #BLK_CMD_READ
-        bne BlkDo
-WriteBlk:                       ; jak ReadBlk, ale zapis (bufor ptr -> blok)
-        lda #BLK_CMD_WRITE
-BlkDo:  sta tmp2
-        stx BLK_LO
-        sty BLK_HI
-        lda ptr
-        sta BLK_ADDR_LO
-        lda ptr+1
-        sta BLK_ADDR_HI
-        lda tmp2
-        sta BLK_CMD
-        lda #0
-        sta ldr_tmo
-        sta ldr_tmo+1
-@wait:  lda BLK_STATUS          ; BUSY ustawione od razu po zapisie CMD
-        and #BLK_ST_BUSY
-        beq @done
-        inc ldr_tmo
-        bne @wait
-        inc ldr_tmo+1
-        bne @wait
-        lda #ERR_TIMEOUT
-        sec
-        rts
-@done:  lda BLK_STATUS
-        and #BLK_ST_ERR
-        beq @ok
-        lda BLK_ERR
-        sec
-        rts
-@ok:    clc
-        rts
 
 MsgLoad: .byte "LOADING SYSTEM", 13, 10, 0
 MsgErr:  .byte "BOOT ERROR ", 0

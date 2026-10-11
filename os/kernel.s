@@ -1,13 +1,14 @@
 ; MiniUnix 0.1 - jądro + shell (ca65). Ładowane pod $0400 przez loader BIOS.
 ; Konwencja: argumenty A/X/Y, błąd = C=1 (kod w A). Programy użytkownika: $2000, kończą RTS.
         .include "bios.inc"
+        .include "platform.inc"
         .export Kstart
 
 ; ---- BIOS ----
-PutChar   = $F806
-ReadBlock = $F815
-ConClear  = $F81B
-WriteBlock = $F818
+PutChar   = BIOS_PutChar
+ReadBlock = BIOS_ReadBlock
+ConClear  = BIOS_ConClear
+WriteBlock = BIOS_WriteBlock
 
 ; ---- zero page jądra ($80-$9F) ----
 kp   = $80      ; wskaźnik ogólny (2)
@@ -79,85 +80,85 @@ qs   = $DE      ; stan cudzysłowu
 ; $E0-$EF: wolne dla programów użytkownika
 
 ; ---- bufory (RAM) ----
-BLKBUF  = $2600
-LINEBUF = $2700
-DIRENT  = $2780         ; 32 B (wpis katalogu)
-nmbuf   = $21A0         ; 11 B
-fd_used = $21B0         ; 8 deskryptorów
-fd_sl   = $21B8
-fd_sh   = $21C0
-fd_ll   = $21C8
-fd_lh   = $21D0
-fd_pl   = $21D8
-fd_ph   = $21E0
-sv1     = $21E8         ; 11 B (mv)
-sv2     = $21F4         ; 11 B (mv)
-wr_act  = $2200         ; pojedynczy plik do zapisu
-wr_ll   = $2201
-wr_lh   = $2202
-wr_sl   = $2203
-wr_sh   = $2204
-slot_blk= $2205
-slot_off= $2206
-wl_l    = $2207         ; koniec dostępnej dziury (wył.)
-wl_h    = $2208
-wr_repl = $2209         ; 1 = zastąp istniejący plik przy zamknięciu
-wr_par  = $220A         ; katalog nadrzędny zapisywanego pliku
-wr_nm   = $2210         ; 11 B
-FNAME   = $2220         ; nazwa/ścieżka z przekierowania (do 79 znaków)
-PATHBUF = $2270         ; ścieżka /bin/NAZWA (do 47 znaków)
-RTC     = $22A0         ; 7 bajtów z DS1307
-tm_date = $22A8         ; data FAT (2 B)
-tm_time = $22AA         ; czas FAT (2 B)
-tm_sec  = $22AC
-PWDST   = $22B0         ; stos indeksów katalogów dla pwd (8)
-fparent = $2570         ; katalog z ParsePath ($FF = root)
-fidx    = $2571         ; indeks znalezionego wpisu
-f_flags = $2572
-dotk    = $2573         ; 1 = '.', 2 = '..'
-yt      = $2574
-lsdir   = $2575
-lflag   = $2576
-sv1p    = $2577
-sv2p    = $2578
-didx    = $2579
-pn      = $257B
-lt      = $257C
-tm_i    = $22AD
-tm_t    = $22AE
-KBUF    = $2300
-WBUF    = $2400
+BLKBUF  = DB+$0600
+LINEBUF = DB+$0700
+DIRENT  = DB+$0780         ; 32 B (wpis katalogu)
+nmbuf   = DB+$01A0         ; 11 B
+fd_used = DB+$01B0         ; 8 deskryptorów
+fd_sl   = DB+$01B8
+fd_sh   = DB+$01C0
+fd_ll   = DB+$01C8
+fd_lh   = DB+$01D0
+fd_pl   = DB+$01D8
+fd_ph   = DB+$01E0
+sv1     = DB+$01E8         ; 11 B (mv)
+sv2     = DB+$01F4         ; 11 B (mv)
+wr_act  = DB+$0200         ; pojedynczy plik do zapisu
+wr_ll   = DB+$0201
+wr_lh   = DB+$0202
+wr_sl   = DB+$0203
+wr_sh   = DB+$0204
+slot_blk= DB+$0205
+slot_off= DB+$0206
+wl_l    = DB+$0207         ; koniec dostępnej dziury (wył.)
+wl_h    = DB+$0208
+wr_repl = DB+$0209         ; 1 = zastąp istniejący plik przy zamknięciu
+wr_par  = DB+$020A         ; katalog nadrzędny zapisywanego pliku
+wr_nm   = DB+$0210         ; 11 B
+FNAME   = DB+$0220         ; nazwa/ścieżka z przekierowania (do 79 znaków)
+PATHBUF = DB+$0270         ; ścieżka /bin/NAZWA (do 47 znaków)
+RTC     = DB+$02A0         ; 7 bajtów z DS1307
+tm_date = DB+$02A8         ; data FAT (2 B)
+tm_time = DB+$02AA         ; czas FAT (2 B)
+tm_sec  = DB+$02AC
+PWDST   = DB+$02B0         ; stos indeksów katalogów dla pwd (8)
+fparent = DB+$0570         ; katalog z ParsePath ($FF = root)
+fidx    = DB+$0571         ; indeks znalezionego wpisu
+f_flags = DB+$0572
+dotk    = DB+$0573         ; 1 = '.', 2 = '..'
+yt      = DB+$0574
+lsdir   = DB+$0575
+lflag   = DB+$0576
+sv1p    = DB+$0577
+sv2p    = DB+$0578
+didx    = DB+$0579
+pn      = DB+$057B
+lt      = DB+$057C
+tm_i    = DB+$02AD
+tm_t    = DB+$02AE
+KBUF    = DB+$0300
+WBUF    = DB+$0400
 ; --- zadania i potoki (RAM, nie przełączane) ---
-t_state = $2500         ; 0 wolne, 1 gotowe, 2 zombie
-t_sp    = $2504
-t_rc    = $2508
-t_name  = $2510         ; 4 x 8
-p_rd    = $2530         ; 4 potoki
-p_wr    = $2534
-p_wc    = $2538         ; pisarz zamknął
-p_rcl   = $253C         ; czytelnik zamknął
-kids    = $2540
-kidn    = $2544
-lastkid = $2545
-bgflag  = $2546
-nst     = $2547
-si      = $2548
-wfail   = $2549         ; 1 = błąd zapisu przy przekierowaniu do pliku
-lf_in   = $254A         ; fd wejścia z pliku ($FF brak)
-lf_out  = $254B
-ctask   = $254C         ; bieżące zadanie
-ticks   = $2558         ; licznik impulsów zegara (2 B)
-qcnt    = $255A
-ns      = $254D
-sbh     = $254E
-stg_lo  = $2550         ; 4 etapy potoku
-stg_hi  = $2554
+t_state = DB+$0500         ; 0 wolne, 1 gotowe, 2 zombie
+t_sp    = DB+$0504
+t_rc    = DB+$0508
+t_name  = DB+$0510         ; 4 x 8
+p_rd    = DB+$0530         ; 4 potoki
+p_wr    = DB+$0534
+p_wc    = DB+$0538         ; pisarz zamknął
+p_rcl   = DB+$053C         ; czytelnik zamknął
+kids    = DB+$0540
+kidn    = DB+$0544
+lastkid = DB+$0545
+bgflag  = DB+$0546
+nst     = DB+$0547
+si      = DB+$0548
+wfail   = DB+$0549         ; 1 = błąd zapisu przy przekierowaniu do pliku
+lf_in   = DB+$054A         ; fd wejścia z pliku ($FF brak)
+lf_out  = DB+$054B
+ctask   = DB+$054C         ; bieżące zadanie
+ticks   = DB+$0558         ; licznik impulsów zegara (2 B)
+qcnt    = DB+$055A
+ns      = DB+$054D
+sbh     = DB+$054E
+stg_lo  = DB+$0550         ; 4 etapy potoku
+stg_hi  = DB+$0554
 ; --- per zadanie: blok 256 B @ $2800+256*t: +0 kopia ZP $80-$EF (112 B), +$70 ARGV, +$80 ARGBUF
-TASK0   = $2800
-ARGV    = $2870
-ARGBUF  = $2880
-IBUF0   = $2C00         ; bufor stdin-pliku zadania t: $2C00+256*t
-PIPEBUF = $3000         ; potok n: $3000+256*n
+TASK0   = DB+$0800
+ARGV    = DB+$0870
+ARGBUF  = DB+$0880
+IBUF0   = DB+$0C00         ; bufor stdin-pliku zadania t: $2C00+256*t
+PIPEBUF = DB+$1000         ; potok n: $3000+256*n
 SLOT1   = $40           ; strony bazowe slotów programów: $4000, $7000, $A000
 
         .segment "CODE"
@@ -257,13 +258,11 @@ k_eputs:
 k_getc: lda in_fd
         cmp #$FF
         bne @file
-@c:     lda CON_CTRL
-        and #1
-        bne @k
+@c:     jsr BIOS_KeyGet
+        bcc @k
         jsr Yield
         jmp @c
-@k:     lda CON_DATA
-        cmp #4                  ; ^D = koniec wejścia
+@k:     cmp #4                  ; ^D = koniec wejścia
         beq @eof
         clc
         rts
@@ -1498,10 +1497,8 @@ IrqHandler:
         pha
         tya
         pha
-        lda TMR_STATUS
-        and #1
-        beq @exit
-        sta TMR_STATUS          ; potwierdzenie (zapis)
+        jsr BIOS_TickAck
+        bcc @exit
         inc ticks
         bne @t
         inc ticks+1
@@ -1509,7 +1506,7 @@ IrqHandler:
         lda $0106,x             ; starszy bajt przerwanego PC
         cmp #SLOT1
         bcc @exit
-        cmp #$D8
+        cmp #SLOT_END_HI
         bcs @exit
         inc qcnt
         lda qcnt
@@ -1874,10 +1871,7 @@ Kstart: cld
         sta $FFFE
         lda #>IrqHandler
         sta $FFFF
-        lda TMR_STATUS          ; skasuj zaległe
-        sta TMR_STATUS
-        lda #3                  ; zegar: start + IRQ
-        sta TMR_CTRL
+        jsr BIOS_TickStart      ; zegar 100 Hz + IRQ
         cli
         lda #<MsgBanner
         ldx #>MsgBanner
@@ -3300,21 +3294,6 @@ cmd_kill:
         jmp Perror
 
 ; ---------------- czas (RTC DS1307 przez I2C) ----------------
-I2cOp:  sta I2C_CTRL            ; A = ctrl; C=1 timeout
-        ldx #0
-        ldy #0
-@w:     lda I2C_STAT
-        and #1
-        beq @ok
-        dex
-        bne @w
-        dey
-        bne @w
-        sec
-        rts
-@ok:    clc
-        rts
-
 Bcd:    sta lt                  ; A (BCD) -> A (binarnie)
         lsr
         lsr
@@ -3348,47 +3327,15 @@ GetTime:
         rts
 
 GetTimeRd:
-        jmp @go
-@bad:   sec
+        lda #<RTC
+        sta ptr
+        lda #>RTC
+        sta ptr+1
+        jsr BIOS_RtcRead        ; 7 B BCD -> RTC; C=1 brak
+        bcc @rd
+        sec
         rts
-@go:
-        lda #$D0
-        sta I2C_DATA
-        lda #5                  ; START | WRITE
-        jsr I2cOp
-        bcs @bad
-        lda I2C_STAT
-        and #2
-        bne @bad
-        lda #0
-        sta I2C_DATA
-        lda #4
-        jsr I2cOp
-        bcs @bad
-        lda #$D1
-        sta I2C_DATA
-        lda #5
-        jsr I2cOp
-        bcs @bad
-        lda I2C_STAT
-        and #2
-        bne @bad
-        lda #0
-        sta tm_i
-@r:     lda #8                  ; READ
-        ldx tm_i
-        cpx #6
-        bne @n
-        lda #26                 ; READ | NACK | STOP
-@n:     jsr I2cOp
-        bcs @bad
-        ldx tm_i
-        lda I2C_DATA
-        sta RTC,x
-        inc tm_i
-        lda tm_i
-        cmp #7
-        bne @r
+@rd:
         ldx #0
 @cv:    lda RTC,x
         cpx #0
@@ -3456,6 +3403,8 @@ GetTimeRd:
         ora tm_time
         sta tm_time
         clc
+        rts
+@bad:   sec
         rts
 
 ; dopisywanie w miejscu: wolne bloki za plikiem; C=1 -> trzeba kopiować

@@ -53,6 +53,20 @@ python scripts/run.py "ls\rcat readme.txt\recho hi | upper\r"   # boot and type 
 
 If cc65 is not in `PATH`, set `CC65_HOME` to its root directory.
 
+## Commodore 64 port
+
+The same kernel runs on a real C64 memory map (`platforms/c64/`): PRG loaded with `LOAD"*",8,1` / `RUN`, BIOS copied to RAM,
+VIC-II 40x25 console, CIA1 keyboard scan, CIA1 timer IRQ (~100 Hz), CIA1 TOD as RTC, disk image on a **REU** (1700/1764/1750).
+
+```sh
+python scripts/build.py --platform c64     # -> build/c64/mini6510.prg
+python scripts/run_vice.py                 # window mode (needs VICE x64sc and a REU preloaded with build/c64/disk.img)
+python tests/test_c64_vice.py              # headless VICE test (needs x64sc, Xvfb, xdotool; skipped when missing)
+```
+
+Caveats: tested in VICE with stand-in KERNAL/charset ROMs (not the original ones); date is fixed (2026-10-11), TOD starts at 09:00;
+no IEC/1541/SD disk backend yet; PET is not supported. See [platforms/c64/test/README.md](platforms/c64/test/README.md).
+
 ## Layout
 
 | Path | Contents |

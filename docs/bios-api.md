@@ -92,3 +92,12 @@ Program użytkownika może używać `$00–$EF` poza rezerwą BIOS. `$0100–$01
 - [ ] Czy `PutChar` ma zachowywać wszystkie rejestry (dla programów wygodniej).
 - [ ] Format `bios.inc` i sposób zgłaszania błędów (flaga C czy kod w A).
 - [ ] Czy `LoadSystem` ma być częścią API, czy tylko wewnętrzną procedurą.
+
+## Nowe wpisy (platform-neutral)
+
+| Adres | Nazwa | Opis |
+|---|---|---|
+| $F824 | BIOS_KeyGet | A = znak ASCII lub 0 (brak klawisza); X/Y zachowane |
+| $F827 | BIOS_TickAck | potwierdza IRQ timera (C64: odczyt $DC0D) |
+| $F82A | BIOS_TickStart | startuje timer ~100 Hz |
+| $F82D | BIOS_RtcRead | czyta czas do bufora wskazanego przez `ptr` (RTC) |

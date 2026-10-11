@@ -1,12 +1,13 @@
 ; BIOS: reset, POST, procedury konsoli, tablica skoków (ca65)
 ; Mapa: ROM $F800-$FFFF (po POST kopia w RAM, shadow), I/O $D800-$DFFF.
         .include "bios.inc"
+        .include "hw.inc"
+        .include "post.inc"
         .import LoadSystem, ReadBlk, WriteBlk
         .import __RELOC_LOAD__, __RELOC_RUN__, __RELOC_SIZE__
-        .export PutChar, PrintStr, PutCRLF
-
-DET_COL = 8
-RES_COL = 24
+        .export PutChar, ConGotoXY
+        .import PrintStr, PutCRLF, PrintHex8, PrintDec16, PrtAY, RowAY, RowEnd, TestRange, ResultRam, DetectCpu
+        .import MsgOk, MsgFail, MsgXX, MsgNmos, MsgCmos, MsgKb, MsgTimeout, MsgNoMedia, MsgPostFail, MsgNoBoot
 
 ; ---------------- tablica skoków (stałe adresy) ----------------
         .segment "JUMPTAB"
@@ -22,114 +23,10 @@ RES_COL = 24
         jmp ConClear            ; $F81B
         jmp ConClearEol         ; $F81E
         jmp ConGotoXY           ; $F821
-
-; ---------------- makra ----------------
-; test ZP/stosu bez użycia stosu i ZP-zmiennych: tylko A, X
-.macro ZPPASS K
-        .local w0, w1, v0, v1, bad, good
-        ldx #2
-w0:     txa
-        eor #K
-        sta $00,x
-        inx
-        bne w0
-        ldx #0
-w1:     txa
-        eor #(K ^ $5A)
-        sta $0100,x
-        inx
-        bne w1
-        ldx #2
-v0:     txa
-        eor #K
-        cmp $00,x
-        bne bad
-        inx
-        bne v0
-        ldx #0
-v1:     txa
-        eor #(K ^ $5A)
-        cmp $0100,x
-        bne bad
-        inx
-        bne v1
-        jmp good
-bad:    jmp ZpFail
-good:
-.endmacro
-
-; test zakresu stron: A = pierwsza strona, X = strona końcowa (wył., mod 256)
-; wyjście: A = 0 OK / 1 błąd (post_page = strona). Kod niezależny od położenia.
-.macro TESTRANGE_BODY
-        .local pass, phase, page, byte, wr, nxt, k1, k2, kd, fail, done
-        sta tr_pm
-        stx tr_xm
-        lda #0
-        sta tr_k
-pass:   lda #0
-        sta tr_ph
-phase:  lda tr_pm
-        sta ptr+1
-        lda #0
-        sta ptr
-page:   lda tr_k
-        beq k1                  ; przebieg 0: K = 0 (A = 0)
-        cmp #1
-        bne k2
-        lda #$FF                ; przebieg 1: K = $FF
-        bne kd
-k2:     lda ptr+1               ; przebieg 2: K = numer strony
-        bne kd
-        lda #$00
-kd:     sta tmp
-k1:     sta tmp                 ; (przebieg 0: A = 0)
-        ldy #0
-byte:   tya
-        eor tmp
-        ldx tr_ph
-        bne wr
-        sta (ptr),y             ; faza zapisu
-        clc
-        bcc nxt
-wr:     cmp (ptr),y             ; faza odczytu
-        bne fail
-nxt:    iny
-        bne byte
-        inc ptr+1
-        lda ptr+1
-        cmp tr_xm
-        bne page
-        inc tr_ph
-        lda tr_ph
-        cmp #2
-        bcc phase
-        inc tr_k
-        lda tr_k
-        cmp #3
-        bcc pass
-        lda #0
-        beq done
-fail:   lda ptr+1
-        sta post_page
-        lda #1
-done:
-.endmacro
-
-.macro PRT lbl
-        lda #<lbl
-        sta ptr2
-        lda #>lbl
-        sta ptr2+1
-        jsr PrintStr
-.endmacro
-
-.macro ROW lbl
-        lda #<lbl
-        sta ptr2
-        lda #>lbl
-        sta ptr2+1
-        jsr RowHead
-.endmacro
+        jmp KeyGet              ; $F824
+        jmp TickAck             ; $F827
+        jmp TickStart           ; $F82A
+        jmp RtcRead             ; $F82D
 
         .segment "BIOS"
 
@@ -320,50 +217,6 @@ PostMain:
 @load:  jmp LoadSystem
 
 ; ---------------- POST: pomocnicze ----------------
-RowHead:                        ; ptr2 -> "etykieta",0,"szczegół",0
-        ldx post_row
-        lda #0
-        jsr ConGotoXY
-        jsr PrintStr
-        tya
-        sec
-        adc ptr2
-        sta ptr2
-        bcc @a
-        inc ptr2+1
-@a:     ldx post_row
-        lda #DET_COL
-        jsr ConGotoXY
-        jsr PrintStr
-        ldx post_row
-        lda #RES_COL
-        jmp ConGotoXY
-
-RowEnd: inc post_row
-        rts
-
-TestRange:
-        TESTRANGE_BODY
-        rts
-
-ResultRam:                      ; A = 0 OK / 1 błąd
-        bne @f
-        PRT MsgOk
-        rts
-@f:     inc post_fail
-        PRT MsgFail
-        lda post_page
-        jsr PrintHex8
-        PRT MsgXX
-        rts
-
-DetectCpu:                      ; Z=1: CMOS (STZ zp), Z=0: NMOS (NOP zp)
-        lda #$55
-        sta tmp
-        .byte $64, tmp
-        lda tmp
-        rts
-
 ; Czeka do 2 s (200 impulsów zegara); C=1 gdy wciśnięto S
 WaitSetup:
         lda #0
@@ -425,71 +278,6 @@ PutChar:                        ; A zachowane
         sta CON_DATA
         rts
 
-PrintStr:                       ; ptr2 -> tekst zakończony 0; Y = indeks zera
-        ldy #0
-@l:     lda (ptr2),y
-        beq @d
-        jsr PutChar
-        iny
-        bne @l
-@d:     rts
-
-PutCRLF:
-        lda #13
-        jsr PutChar
-        lda #10
-        jmp PutChar
-
-PrintHex8:
-        pha
-        lsr
-        lsr
-        lsr
-        lsr
-        jsr @nib
-        pla
-@nib:   and #$0F
-        cmp #10
-        bcc @d
-        adc #6
-@d:     adc #'0'
-        jmp PutChar
-
-PrintDec16:                     ; A = lo, X = hi
-        sta ptr
-        stx ptr+1
-        ldx #0
-        stx tmp2
-@pw:    ldy #0
-@sub:   lda ptr
-        sec
-        sbc PowLo,x
-        sta tmp
-        lda ptr+1
-        sbc PowHi,x
-        bcc @out
-        sta ptr+1
-        lda tmp
-        sta ptr
-        iny
-        bne @sub
-@out:   tya
-        ora tmp2
-        beq @nx
-        tya
-        clc
-        adc #'0'
-        jsr PutChar
-        lda #1
-        sta tmp2
-@nx:    inx
-        cpx #4
-        bne @pw
-        lda ptr
-        clc
-        adc #'0'
-        jmp PutChar
-
 ConGotoXY:                      ; A = kolumna, X = wiersz (od 0)
         sta con_col
         lda #27
@@ -530,31 +318,100 @@ WriteBlock:                     ; A = napęd, X/Y = blok, ptr = bufor
 Unimpl: sec
         rts
 
+; ---- usługi wejścia/zegara dla systemu (kontrakt: bios.inc) ----
+KeyGet: lda CON_CTRL            ; C=0, A = znak / C=1 brak
+        and #1
+        beq @n
+        lda CON_DATA
+        clc
+        rts
+@n:     sec
+        rts
+
+TickAck:                        ; C=1 gdy impuls zegara (potwierdzony)
+        lda TMR_STATUS
+        and #1
+        beq @n
+        sta TMR_STATUS          ; zapis = potwierdzenie
+        sec
+        rts
+@n:     clc
+        rts
+
+TickStart:
+        lda TMR_STATUS          ; skasuj zaległe
+        sta TMR_STATUS
+        lda #3                  ; start + IRQ
+        sta TMR_CTRL
+        rts
+
+; RTC DS1307 ($68) przez kontroler I2C: 7 bajtów BCD -> (ptr)
+I2cOp:  sta I2C_CTRL            ; A = ctrl; C=1 timeout
+        ldx #0
+        ldy #0
+@w:     lda I2C_STAT
+        and #1
+        beq @ok
+        dex
+        bne @w
+        dey
+        bne @w
+        sec
+        rts
+@ok:    clc
+        rts
+
+RtcRead:
+        lda #$D0
+        sta I2C_DATA
+        lda #5                  ; START | WRITE
+        jsr I2cOp
+        bcs @f
+        lda I2C_STAT
+        and #2
+        bne @f
+        lda #0
+        sta I2C_DATA
+        lda #4
+        jsr I2cOp
+        bcs @f
+        lda #$D1
+        sta I2C_DATA
+        lda #5
+        jsr I2cOp
+        bcs @f
+        ldy #0
+@r:     lda #8                  ; READ
+        cpy #6
+        bne @n
+        lda #26                 ; READ | NACK | STOP
+@n:     sty tmp
+        jsr I2cOp
+        bcs @f
+        ldy tmp
+        lda I2C_DATA
+        sta (ptr),y
+        iny
+        cpy #7
+        bne @r
+        clc
+        rts
+@f:     sec
+        rts
+
 NmiIrq: rti
 
 ; ---------------- dane ----------------
-PowLo:  .byte <10000, <1000, <100, <10
-PowHi:  .byte >10000, >1000, >100, >10
 
 MsgClear:    .byte 27,"[2J",27,"[H",0
 MsgEol:      .byte 27,"[K",0
 MsgBanner:   .byte "BIOS 6510 V0.1",0
 MsgHeader:   .byte "TEST    RANGE           RESULT",0
 MsgZpFail:   .byte "ZP/STACK RAM FAIL",13,10,0
-MsgOk:       .byte "OK ",0
-MsgFail:     .byte "FAIL ",0
-MsgXX:       .byte "XX",0
 MsgShadow:   .byte "SHADOW",0
-MsgNmos:     .byte "OK NMOS",0
-MsgCmos:     .byte "OK CMOS",0
-MsgKb:       .byte " KB",0
-MsgTimeout:  .byte "TIMEOUT",0
-MsgNoMedia:  .byte "NO MEDIA",0
 MsgTmrOk:    .byte "OK 100 HZ",0
-MsgPostFail: .byte "POST FAILED",0
 MsgSetup:    .byte "PRESS S FOR SETUP",0
 MsgSetupMenu:.byte "SETUP: NOT IMPLEMENTED",13,10,0
-MsgNoBoot:   .byte "NO BOOT MEDIA",0
 RowCpu:      .byte "CPU",0,0
 RowZp:       .byte "RAM",0,"0002-01FF",0
 RowRam1:     .byte "RAM",0,"0200-D7FF",0
