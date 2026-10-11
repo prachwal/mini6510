@@ -67,3 +67,15 @@ Lookup order for commands and drivers (`PATH`): `/ram/bin`, `/disk/bin`, then `/
 without a new cartridge). Driver packages follow the same rule for `/lib/drv`.
 Mount table in the kernel: name, medium, first block, size, flags (read-only), mount directory; the BIOS call gets the volume number
 (today `A=drive` is ignored and must start being used).
+
+## Decision: the boot medium is part of the monolith, chosen by the boot method
+Confirmed by the user (2026-10-11). The monolith (boot + BIOS core + kernel core) contains exactly **one boot block transport**, the one used to start:
+| Boot method | Built into the monolith | Everything else |
+|---|---|---|
+| Cartridge | ROM disk reader (and write overlay), console | drive transports (IEC/TCBM), REU, printer, tape, gfx, sound as drivers |
+| Disk drive (IEC 1541) | IEC transport + block layer (`bios/iec.s`, `drive.s`), console | ROM disk, REU, other transports as drivers |
+| Disk drive (TCBM 1551) | TCBM transport + block layer, console | as above |
+| REU / RAM image | REU reader, console | as above |
+One build per machine and boot method (`--boot cart|iec|tcbm|reu`), each image contains only its own transport. A transport that is not the boot medium
+is a package loaded from the boot volume (it needs one block device already working, which the monolith has). This replaces today's
+"all transports in the BIOS, selected at POST" model, and it shrinks the BIOS (no IEC code in a cartridge-only build, no ROM reader in a disk-boot build).

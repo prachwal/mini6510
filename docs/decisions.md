@@ -68,3 +68,6 @@ Wymóg użytkownika: jeden wspólny interfejs grafiki w BIOS-ie dla wszystkich m
 
 ## 2026-10-11 — Budżet pamięci
 Pamięć jest głównym ograniczeniem: każdy element (jądro, BIOS, sterownik, grafika) ma limit ROM/RAM w tabeli w `docs/roadmap-0.2.md`, a `scripts/build.py` ma przerywać build po jego przekroczeniu (0.2). Kod i stałe w ROM (XIP), pakiety ładowane na żądanie, bitmapa grafiki, bufor dysku i nakładka zapisu nie jednocześnie na małej maszynie. Status: do potwierdzenia.
+
+## 2026-10-11 — Nośnik rozruchowy w monolicie
+Monolit zawiera dokładnie jeden transport nośnika rozruchowego, zależnie od sposobu startu: cartridge (czytnik ROM-dysku), napęd IEC/1541, TCBM/1551 albo REU. Inne transporty to pakiety ładowane z woluminu rozruchowego. Osobny build na maszynę i sposób startu (`--boot cart|iec|tcbm|reu`), BIOS mniejszy, bez wszystkich transportów naraz. Dotyczy 0.2. Opis: `docs/drivers.md`.

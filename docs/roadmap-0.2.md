@@ -7,6 +7,7 @@ is released when its tests pass. Everything is **to be confirmed**; details in `
 ## 0.2 - Small and ROM-resident (theme: cartridge without copying to RAM)
 - [ ] Kernel size optimization (-10-20 %): size map per function, shared subroutines, tables, zero page, packed texts, rare commands to `/bin`, `.if FEATURE_X`.
 - [ ] Memory budget per machine (table below) checked at build time: `scripts/build.py` fails when a part exceeds its limit and prints the size map per part.
+- [ ] Boot-medium builds: one monolith per machine and boot method (`cart`, `iec`, `tcbm`, `reu`) containing only its own block transport; other transports become packages (`docs/drivers.md`).
 - [ ] Low-RAM cartridge mode, execute in place (C16/C116, 16 KB): ROM stays mapped, RAM only for variables (`docs/xip.md`).
 - [ ] Mount table with the cartridge ROM disk as the base volume `/` (read-only) and `/ram` (RAM disk/REU), `mount`/`umount`, PATH `/ram/bin`, `/bin`.
 - [ ] Snake as a portable program in `/bin` (console + `KeyGet` + tick only), run on C64, Plus/4 and C16 as the contract test.
