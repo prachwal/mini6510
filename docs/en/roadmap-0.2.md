@@ -13,6 +13,8 @@ is released when its tests pass. Everything is **to be confirmed**; details in `
   - fault injection for error paths (disk error 2, UART byte loss, full write overlay, drive timeout);
   - a coverage threshold enforced in CI (start with the measured value, raise it over time); a new routine without a test does not merge.
   Out of the measurement and covered by VICE/hardware tests instead: VIC/TED/SID code, IEC/TCBM timing, self-modified code copied to RAM (the bank reader).
+- [ ] Test loop: one command runs `scripts/test.py` for every platform on each change (VICE tests where the ROMs exist); CI runs build, size check and the generic tests.
+- [ ] Rendering test: compare a VICE screenshot with a reference image (the screen-text tests missed the garbled glyphs on the Plus/4).
 - [ ] Memory budget per machine (table below) checked at build time: `scripts/build.py` fails when a part exceeds its limit and prints the size map per part.
 - [ ] Boot-medium builds: one monolith per machine and boot method (`cart`, `iec`, `tcbm`, `reu`) containing only its own block transport; other transports become packages (`docs/en/drivers.md`).
 - [ ] Low-RAM cartridge mode, execute in place (C16/C116, 16 KB): ROM stays mapped, RAM only for variables (`docs/en/xip.md`).
