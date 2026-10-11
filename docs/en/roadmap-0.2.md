@@ -2,13 +2,13 @@
 
 0.1 (done): C64 (cartridge, REU, 1541/IEC), Plus/4 (cartridge, ROM disk, 1551/TCBM), generic emulator.
 Rule: a new idea goes to "Ideas" first; it enters a version only when something else leaves it. Each version has one theme and
-is released when its tests pass. Everything is **to be confirmed**; details in `docs/xip.md`, `docs/drivers.md`, `docs/decisions.md`.
+is released when its tests pass. Everything is **to be confirmed**; details in `docs/en/xip.md`, `docs/en/drivers.md`, `docs/en/decisions.md`.
 
 ## 0.2 - Small and ROM-resident (theme: cartridge without copying to RAM)
 - [ ] Kernel size optimization (-10-20 %): size map per function, shared subroutines, tables, zero page, packed texts, rare commands to `/bin`, `.if FEATURE_X`.
 - [ ] Memory budget per machine (table below) checked at build time: `scripts/build.py` fails when a part exceeds its limit and prints the size map per part.
-- [ ] Boot-medium builds: one monolith per machine and boot method (`cart`, `iec`, `tcbm`, `reu`) containing only its own block transport; other transports become packages (`docs/drivers.md`).
-- [ ] Low-RAM cartridge mode, execute in place (C16/C116, 16 KB): ROM stays mapped, RAM only for variables (`docs/xip.md`).
+- [ ] Boot-medium builds: one monolith per machine and boot method (`cart`, `iec`, `tcbm`, `reu`) containing only its own block transport; other transports become packages (`docs/en/drivers.md`).
+- [ ] Low-RAM cartridge mode, execute in place (C16/C116, 16 KB): ROM stays mapped, RAM only for variables (`docs/en/xip.md`).
 - [ ] Mount table with the cartridge ROM disk as the base volume `/` (read-only) and `/ram` (RAM disk/REU), `mount`/`umount`, PATH `/ram/bin`, `/bin`.
 - [ ] Snake as a portable program in `/bin` (console + `KeyGet` + tick only), run on C64, Plus/4 and C16 as the contract test.
 Done when: Plus/4 16 KB and C64 boot from ROM with no code copied to RAM, regression green, snake runs on all targets.
@@ -17,7 +17,7 @@ Done when: Plus/4 16 KB and C64 boot from ROM with no code copied to RAM, regres
 - [ ] Loadable driver packages in `/lib/drv`: max 1 block (256 B), page relocation, `tools/mkdrv.py`, driver table (`DrvLoad/Find/Unload`), devices by name.
 - [ ] Two drives (8 and 9): unit number as a variable instead of `IEC_UNIT = 8`, per-volume state, `/d8`, `/d9`, VICE `-9` test.
 - [ ] Printer package (IEC unit 4, `/dev/lp`, ASCII to PETSCII).
-- [ ] Common graphics BIOS (`docs/graphics.md`): `GfxCaps`, `GfxMode`, `Plot`, `Clear`, `Fill`, `Line`, implemented per platform (C64, Plus/4 first); a demo program that adapts to the reported size.
+- [ ] Common graphics BIOS (`docs/en/graphics.md`): `GfxCaps`, `GfxMode`, `Plot`, `Clear`, `Fill`, `Line`, implemented per platform (C64, Plus/4 first); a demo program that adapts to the reported size.
 - [ ] Sound contract (`Tone`, `Quiet`, `SoundCaps`) as package `snd`; Tetris as the second portable program.
 Done when: a package loads, relocates and registers on both platforms; 8+9 test passes; `cat x > /dev/lp` lands in the VICE printer file.
 
@@ -30,7 +30,7 @@ Done when: real `.prg`/`.d64` games load and start in VICE, `ls`/`cat`/`cp` work
 
 ## Ideas (not scheduled; at most one new machine after 0.2)
 - Machines: PET / CBM 8032 (IEEE-488), C128 (C64 mode first, native later), Atari 800/XL/XE (SIO, cartridge fits XIP), Apple II (ProDOS blocks), VIC-20, BBC Micro, Oric.
-- `musicplay file.sap` on Atari (SAP type B first; `docs/musicplay.md`), needs the Atari platform and `TickSet hz`. `musicplay file.sid` on C64 (PSID first; first candidate after 0.2, `docs/musicplay.md`); `.sid` on Atari only by offline conversion.
+- `musicplay file.sap` on Atari (SAP type B first; `docs/en/musicplay.md`), needs the Atari platform and `TickSet hz`. `musicplay file.sid` on C64 (PSID first; first candidate after 0.2, `docs/en/musicplay.md`); `.sid` on Atari only by offline conversion.
 - Pac-Man (text mode), more portable games and tools.
 - Real-hardware tests (IEC/TCBM timing), 1541 on Plus/4 over IEC.
 - Tag and release notes per version; update `docs/` and screenshots each time.

@@ -39,5 +39,5 @@ python scripts/test.py      # wszystkie testy (~2 min)
 python scripts/run.py "ls -l\recho hi | upper\r"
 ```
 
-Dokumentacja projektowa (po polsku) jest w [`docs/`](docs/): `platform.md`, `bios-api.md`, `architecture.md`, `decisions.md`.
+Dokumentacja projektowa po polsku jest w [`docs/pl/`](docs/pl/): `platform.md`, `bios-api.md`, `architecture.md`, `decisions.md`. Wersja angielska: [`docs/en/`](docs/en/).
 Pełny opis funkcji i układ katalogów: [README.md](README.md).

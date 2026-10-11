@@ -32,10 +32,10 @@ Rozruch całego systemu z cartridge: bank 0 = boot + BIOS, banki 1-15 = dysk ROM
 Plus/4 startuje z cartridge CART-1 (32 KB). Dysk w ROM (108 bloków) + zapisywalna nakładka w RAM (24 bloki). Czas programowy (brak RTC). Do potwierdzenia: merge do main.
 
 ## 2026-10-11 — Napędy dysków (branch feature/iec-drive)
-Sterownik napędu 8 jako urządzenie blokowe: IEC/1541 (C64) i TCBM/1551 (Plus/4, natywny napęd tej maszyny), wspólna warstwa U1/U2. Napęd z dyskiem MiniUnix ma pierwszeństwo przed REU/ROM. BIOS Plus/4 urósł do 5 KB (dysk ROM 104 bloki, BIOS od $E700, nakładka 23 bloki). Opis: `docs/drives.md`. Do potwierdzenia: merge; następny krok: tryb niskiej pamięci (C16/C116, wykonywanie z ROM).
+Sterownik napędu 8 jako urządzenie blokowe: IEC/1541 (C64) i TCBM/1551 (Plus/4, natywny napęd tej maszyny), wspólna warstwa U1/U2. Napęd z dyskiem MiniUnix ma pierwszeństwo przed REU/ROM. BIOS Plus/4 urósł do 5 KB (dysk ROM 104 bloki, BIOS od $E700, nakładka 23 bloki). Opis: `docs/en/drives.md`. Do potwierdzenia: merge; następny krok: tryb niskiej pamięci (C16/C116, wykonywanie z ROM).
 
 ## 2026-10-11 — Tryb niskiej pamięci / XIP (branch feature/c16-xip)
-Cel: cartridge bez kopiowania czegokolwiek do RAM (C16/C116, 16 KB). Kod wykonywany z ROM, RAM tylko na zmienne. Na razie tylko projekt: `docs/xip.md` (do potwierdzenia: minimalny RAM 16 KB, własny zestaw znaków w ROM cartridge).
+Cel: cartridge bez kopiowania czegokolwiek do RAM (C16/C116, 16 KB). Kod wykonywany z ROM, RAM tylko na zmienne. Na razie tylko projekt: `docs/en/xip.md` (do potwierdzenia: minimalny RAM 16 KB, własny zestaw znaków w ROM cartridge).
 
 ## 2026-10-11 — Kandydaci na kolejne platformy (na później, do potwierdzenia)
 - **PET / CBM 8032 (80 kolumn):** nowa platforma `platforms/pet`. Do napisania: ekran 80×25 pod `$8000`, klawiatura (VIA/PIA), zegar 60 Hz, transport IEEE-488 (PIA 6520 + VIA) pod istniejącą warstwę blokową `bios/drive.s` (polecenia U1/U2). Uwaga na tablicę sektorów napędów 2031/4040/8050 i brak cartridge (bootloader z dysku lub ROM w gnieździe `$9000`). Test: VICE `xpet`.
@@ -46,34 +46,34 @@ Status: do potwierdzenia (priorytet i kolejność).
 Jądro `os/kernel.s` ma ok. 7,2 KB. Plan: (1) pomiar rozmiaru po funkcjach z mapy linkera, (2) wspólne podprocedury, dispatch przez tabele, więcej zmiennych na stronie zerowej, kompresja tekstów, (3) rzadkie polecenia (`uptime`, `date`, `ps`) do `/bin`, (4) flagi `.if FEATURE_X` pod wersję minimalną (tryb C16/XIP). Cel: -10-20 % bez utraty funkcji; testy regresji pilnują poprawności.
 
 ## 2026-10-11 — Ładowalne sterowniki + drukarka (na później, do potwierdzenia)
-Pakiety na dysku (`/lib/drv`), ładowane w miarę potrzeby, max 1 blok (256 B), relokacja stronicowa (tylko starsze bajty adresów). Sterownik ładowany z dysku do obszaru RAM z automatyczną relokacją (tabela poprawek adresów w pliku modułu) i rejestrowany w tablicy sterowników (nazwa, tablica wejść, adres, rozmiar); jądro używa urządzeń przez tablicę (`/dev/lp`). Transport startowy zostaje w BIOS-ie/ROM-ie. Pierwszy kandydat: drukarka IEC (adres 4). Opis: `docs/drivers.md`.
+Pakiety na dysku (`/lib/drv`), ładowane w miarę potrzeby, max 1 blok (256 B), relokacja stronicowa (tylko starsze bajty adresów). Sterownik ładowany z dysku do obszaru RAM z automatyczną relokacją (tabela poprawek adresów w pliku modułu) i rejestrowany w tablicy sterowników (nazwa, tablica wejść, adres, rozmiar); jądro używa urządzeń przez tablicę (`/dev/lp`). Transport startowy zostaje w BIOS-ie/ROM-ie. Pierwszy kandydat: drukarka IEC (adres 4). Opis: `docs/en/drivers.md`.
 
 ## 2026-10-11 — Sterownik taśmy (na później, do potwierdzenia)
-Kolejny sterownik ładowalny: magnetofon (`/dev/tap`), dostęp sekwencyjny, bloki 256 B z nagłówkiem i sumą kontrolną, własne kodowanie impulsów (bez KERNAL), podział na pakiety `tapr`/`tapw` (limit 1 blok). Test w VICE przez obraz `.tap`. Opis: `docs/drivers.md`.
+Kolejny sterownik ładowalny: magnetofon (`/dev/tap`), dostęp sekwencyjny, bloki 256 B z nagłówkiem i sumą kontrolną, własne kodowanie impulsów (bez KERNAL), podział na pakiety `tapr`/`tapw` (limit 1 blok). Test w VICE przez obraz `.tap`. Opis: `docs/en/drivers.md`.
 
 ## 2026-10-11 — Rdzeń na maszynę może być monolitem
-Minimum na maszynę to start (boot + BIOS + rdzeń jądra), może być monolitem. Reszta (transporty dodatkowe, drukarka, taśma, zegar, filtry) jako ładowalne pakiety lub programy. Opis: `docs/drivers.md`.
+Minimum na maszynę to start (boot + BIOS + rdzeń jądra), może być monolitem. Reszta (transporty dodatkowe, drukarka, taśma, zegar, filtry) jako ładowalne pakiety lub programy. Opis: `docs/en/drivers.md`.
 
 ## 2026-10-11 — Montowanie woluminów, cartridge jako wolumin bazowy (na później, do potwierdzenia)
-ROM-dysk cartridge = wolumin bazowy `/` (tylko odczyt) z programami (`/bin`) i sterownikami (`/lib/drv`) bazowymi. RAM-dysk/REU pod `/ram`, napęd pod `/disk`, taśma pod `/tape`. Ścieżki zwykłe (bez liter napędów), polecenie `mount`/`umount`, PATH: `/ram/bin`, `/disk/bin`, `/bin` (kopia na zapisywalnym woluminie nadpisuje bazową). Opis: `docs/drivers.md`.
+ROM-dysk cartridge = wolumin bazowy `/` (tylko odczyt) z programami (`/bin`) i sterownikami (`/lib/drv`) bazowymi. RAM-dysk/REU pod `/ram`, napęd pod `/disk`, taśma pod `/tape`. Ścieżki zwykłe (bez liter napędów), polecenie `mount`/`umount`, PATH: `/ram/bin`, `/disk/bin`, `/bin` (kopia na zapisywalnym woluminie nadpisuje bazową). Opis: `docs/en/drivers.md`.
 
 ## 2026-10-11 — Zgodność wsteczna i uruchamianie gier (na później, do potwierdzenia)
 Cel: uruchamianie istniejących gier/PRG z dysków CBM DOS. Gra przejmuje całą maszynę, wyjście = reset (gry nie mają exit), więc system nie musi przeżyć uruchomienia gry. Polecenie `run`/`load`: wczytanie PRG pod adres z nagłówka, przywrócenie stanu jak po resecie (układ pamięci z ROM-ami i KERNAL-em, wektory, rejestry VIC/TED/CIA, przerwania), start przez `SYS`/`RUN`. Rezydent w ROM cartridge (tryb XIP) nie zajmuje RAM-u gry; powrót do MiniUnix przez reset (programowy lub przycisk). Poza zasięgiem: zabezpieczenia, własne formaty dysku, cartridge-gry. Test: VICE z prawdziwymi `.prg`/`.d64`.
 
 ## 2026-10-11 — Plan wersji 0.2
-Plan podzielony na wersje: 0.2 (mała i rezydentna w ROM: optymalizacja, XIP, woluminy `/` i `/ram`, snake), 0.3 (sterowniki ładowalne, dyski 8/9, drukarka, dźwięk, tetris), 0.4 (VFS + CBM DOS, `run` dla gier, taśma). Reszta w „Ideas”: nowe maszyny, pacman, testy na sprzęcie. Opis: `docs/roadmap-0.2.md`. Status: do potwierdzenia.
+Plan podzielony na wersje: 0.2 (mała i rezydentna w ROM: optymalizacja, XIP, woluminy `/` i `/ram`, snake), 0.3 (sterowniki ładowalne, dyski 8/9, drukarka, dźwięk, tetris), 0.4 (VFS + CBM DOS, `run` dla gier, taśma). Reszta w „Ideas”: nowe maszyny, pacman, testy na sprzęcie. Opis: `docs/en/roadmap-0.2.md`. Status: do potwierdzenia.
 
 ## 2026-10-11 — Wspólny BIOS grafiki
-Wymóg użytkownika: jeden wspólny interfejs grafiki w BIOS-ie dla wszystkich maszyn (nie ładny, tylko wspólny). Wąski kontrakt: `GfxCaps`, `GfxMode`, `Clear`, `Plot`, `Fill`, `Line`; aplikacje czytają rozmiar i dostosowują układ (w komórkach 8×8). Efekty i sprite'y poza kontraktem. Wersja 0.3. Opis: `docs/graphics.md`. Status: do potwierdzenia.
+Wymóg użytkownika: jeden wspólny interfejs grafiki w BIOS-ie dla wszystkich maszyn (nie ładny, tylko wspólny). Wąski kontrakt: `GfxCaps`, `GfxMode`, `Clear`, `Plot`, `Fill`, `Line`; aplikacje czytają rozmiar i dostosowują układ (w komórkach 8×8). Efekty i sprite'y poza kontraktem. Wersja 0.3. Opis: `docs/en/graphics.md`. Status: do potwierdzenia.
 
 ## 2026-10-11 — Budżet pamięci
-Pamięć jest głównym ograniczeniem: każdy element (jądro, BIOS, sterownik, grafika) ma limit ROM/RAM w tabeli w `docs/roadmap-0.2.md`, a `scripts/build.py` ma przerywać build po jego przekroczeniu (0.2). Kod i stałe w ROM (XIP), pakiety ładowane na żądanie, bitmapa grafiki, bufor dysku i nakładka zapisu nie jednocześnie na małej maszynie. Status: do potwierdzenia.
+Pamięć jest głównym ograniczeniem: każdy element (jądro, BIOS, sterownik, grafika) ma limit ROM/RAM w tabeli w `docs/en/roadmap-0.2.md`, a `scripts/build.py` ma przerywać build po jego przekroczeniu (0.2). Kod i stałe w ROM (XIP), pakiety ładowane na żądanie, bitmapa grafiki, bufor dysku i nakładka zapisu nie jednocześnie na małej maszynie. Status: do potwierdzenia.
 
 ## 2026-10-11 — Nośnik rozruchowy w monolicie
-Monolit zawiera dokładnie jeden transport nośnika rozruchowego, zależnie od sposobu startu: cartridge (czytnik ROM-dysku), napęd IEC/1541, TCBM/1551 albo REU. Inne transporty to pakiety ładowane z woluminu rozruchowego. Osobny build na maszynę i sposób startu (`--boot cart|iec|tcbm|reu`), BIOS mniejszy, bez wszystkich transportów naraz. Dotyczy 0.2. Opis: `docs/drivers.md`.
+Monolit zawiera dokładnie jeden transport nośnika rozruchowego, zależnie od sposobu startu: cartridge (czytnik ROM-dysku), napęd IEC/1541, TCBM/1551 albo REU. Inne transporty to pakiety ładowane z woluminu rozruchowego. Osobny build na maszynę i sposób startu (`--boot cart|iec|tcbm|reu`), BIOS mniejszy, bez wszystkich transportów naraz. Dotyczy 0.2. Opis: `docs/en/drivers.md`.
 
 ## 2026-10-11 — musicplay (Atari, SAP)
-Narzędzie `musicplay plik.sap` na Atari: wczytanie SAP (typ B najpierw), załadowanie bloków, `INIT` z numerem utworu, `PLAYER` z timera co ramkę (`TickSet hz`). `.sid` na Atari tylko przez konwersję offline. Wymaga platformy Atari (nierozpoczętej), więc w „Ideas”. Opis: `docs/musicplay.md`. Status: do potwierdzenia.
+Narzędzie `musicplay plik.sap` na Atari: wczytanie SAP (typ B najpierw), załadowanie bloków, `INIT` z numerem utworu, `PLAYER` z timera co ramkę (`TickSet hz`). `.sid` na Atari tylko przez konwersję offline. Wymaga platformy Atari (nierozpoczętej), więc w „Ideas”. Opis: `docs/en/musicplay.md`. Status: do potwierdzenia.
 
 ## 2026-10-11 — musicplay (C64, SID)
-Narzędzie `musicplay plik.sid` na C64: PSID najpierw (RSID później przez `run`), wczytanie pod adres z nagłówka z kontrolą kolizji z jądrem/BIOS-em, `init` z numerem utworu, `play` z timera 50/60 Hz (`TickSet`), klawisze, wyciszenie SID po wyjściu. Pierwszy kandydat po 0.2 (platforma C64 istnieje). Opis: `docs/musicplay.md`. Status: do potwierdzenia.
+Narzędzie `musicplay plik.sid` na C64: PSID najpierw (RSID później przez `run`), wczytanie pod adres z nagłówka z kontrolą kolizji z jądrem/BIOS-em, `init` z numerem utworu, `play` z timera 50/60 Hz (`TickSet`), klawisze, wyciszenie SID po wyjściu. Pierwszy kandydat po 0.2 (platforma C64 istnieje). Opis: `docs/en/musicplay.md`. Status: do potwierdzenia.

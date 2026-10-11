@@ -30,7 +30,7 @@ MiniUnix 0.1 (6510)
 ## Features
 
 **BIOS (2 KB ROM, shadowed into RAM)** — POST (zero page/stack, full RAM walk, ROM→RAM shadow copy),
-console, 256-byte block device loader, timer check, jump table at `$F800` (see [docs/bios-api.md](docs/bios-api.md)).
+console, 256-byte block device loader, timer check, jump table at `$F800` (see [docs/en/bios-api.md](docs/en/bios-api.md)).
 
 **MiniUnix kernel (~7 KB at `$0400`)**
 - SFS file system: files > 1 block, directories and paths (`/`, `.`, `..`), timestamps from a DS1307 RTC over I²C,
@@ -116,7 +116,7 @@ Working in the shell:
 |---|---|
 | ![cart](docs/img/c64-cart-boot.png) | ![cart ro](docs/img/c64-cart-readonly.png) |
 
-Details: [docs/c64.md](docs/c64.md#cartridge-magic-desk).
+Details: [docs/en/c64.md](docs/en/c64.md#cartridge-magic-desk).
 
 ## Commodore Plus/4 port
 
@@ -135,14 +135,14 @@ PLUS4_ROMS=roms-plus4 python tests/test_plus4_cart.py   # VICE test with the ori
 |---|---|---|
 | ![plus4 start](docs/img/plus4-start.png) | ![plus4 shell](docs/img/plus4-shell.png) | ![plus4 dirs](docs/img/plus4-write-dirs.png) |
 
-Details: [docs/plus4.md](docs/plus4.md).
+Details: [docs/en/plus4.md](docs/en/plus4.md).
 
 ## Disk drives
 
 Both ports can use a real drive as the block device: **1541 over IEC** (C64) and **1551 over TCBM** (Plus/4's native drive),
 bit-banged by the BIOS (no KERNAL). A drive holding a MiniUnix disk (`build/<platform>/drive.d64`, 683 blocks) wins over the
 REU/ROM disk, and writes persist in the image. Tests run on VICE's true-drive emulation (`tests/test_c64_drive.py`,
-`tests/test_plus4_drive.py`; ROMs `dos1541.bin` / `dos1551.bin` needed). Details: [docs/drives.md](docs/drives.md).
+`tests/test_plus4_drive.py`; ROMs `dos1541.bin` / `dos1551.bin` needed). Details: [docs/en/drives.md](docs/en/drives.md).
 
 | C64 + 1541 (IEC) | Plus/4 + 1551 (TCBM) |
 |---|---|
@@ -160,7 +160,7 @@ REU/ROM disk, and writes persist in the image. Tests run on VICE's true-drive em
 | `tools/` | `sfs.py` (disk image / SFS), `mkdisk.py`, `mkcom.py` (relocatable `.COM` builder) |
 | `tests/` | End-to-end tests driving the real ROM and kernel through the simulated console |
 | `scripts/` | `build.py`, `test.py`, `run.py` |
-| `docs/` | Platform contract, architecture, decisions and verification notes (Polish) |
+| `docs/en/`, `docs/pl/` | Platform contract, architecture, decisions and verification notes (English and Polish; see `docs/README.md`) |
 
 ## Writing a program
 
@@ -185,7 +185,7 @@ it ends up in `/bin` on the disk image. See [`examples/`](examples/README.md).
 
 Everything is verified against the **Python model** of the platform only. Running it on a real
 6510 machine or another emulator requires that machine to honour the contract in
-[docs/platform.md](docs/platform.md) (some items there are still marked "to be confirmed").
+[docs/en/platform.md](docs/en/platform.md) (some items there are still marked "to be confirmed").
 Known limits: no memory protection, no users/permissions, files ≤ 64 KB, polled console input.
 
 ## License

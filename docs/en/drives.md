@@ -5,8 +5,8 @@ The BIOS can use a real disk drive as the block device. The kernel does not chan
 
 | C64 + 1541 (IEC) | Plus/4 + 1551 (TCBM) |
 |---|---|
-| ![C64 boot from 1541](img/c64-drive-boot.png) | ![Plus/4 boot from 1551](img/plus4-drive-boot.png) |
-| ![C64 shell on 1541](img/c64-drive-shell.png) | ![Plus/4 shell on 1551](img/plus4-drive-shell.png) |
+| ![C64 boot from 1541](../img/c64-drive-boot.png) | ![Plus/4 boot from 1551](../img/plus4-drive-boot.png) |
+| ![C64 shell on 1541](../img/c64-drive-shell.png) | ![Plus/4 shell on 1551](../img/plus4-drive-shell.png) |
 
 ## Selection at POST
 `IecInit` (bios/drive.s) probes unit 8 in up to 10 rounds (the drive may still be resetting; a round without a drive

@@ -13,7 +13,7 @@ Code runs from ROM (CART-1 stays mapped); RAM holds only variables, stack, scree
 - Narrow RAM window for BIOS/kernel variables ($0300-$03FF + zero page); screen and attributes at the standard TED locations.
 - RAM size probe at POST (16/32/64 KB); program slots are sized from the probe result.
 - ROM disk is read directly (no RAMCODE copy), because the ROM is always mapped; writes still go to a RAM overlay, whose size depends on free RAM.
-- TED character fetch must keep reading the internal ROM glyphs ($D400): do not map the cart over the high bank, copy a glyph set into the cart image instead (see docs/plus4.md, ROM bank note).
+- TED character fetch must keep reading the internal ROM glyphs ($D400): do not map the cart over the high bank, copy a glyph set into the cart image instead (see docs/en/plus4.md, ROM bank note).
 
 ## Work plan
 1. POST: RAM probe, memory map by size. 2. Cart layout: kernel + BIOS in c1lo, disk in c1hi, jump table in ROM.
