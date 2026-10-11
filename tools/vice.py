@@ -20,7 +20,7 @@ def screen_char(code):
 
 
 class Vice:
-    def __init__(self, roms=None, disk=None, display=':77', port=6510, warp=True):
+    def __init__(self, roms=None, disk=None, display=':77', port=6510, warp=True, cart=None, reu=True, extra=()):
         self.display, self.port = display, port
         self.roms = Path(roms or os.environ.get('C64_ROMS') or BUILD / 'roms')
         self.disk = Path(disk) if disk else BUILD / 'disk.img'
@@ -31,11 +31,16 @@ class Vice:
         real = (self.roms / 'kernal.bin').exists()
         args = ['x64sc', '-default', '+sound', '-sounddev', 'dummy', '-remotemonitor',
                 '-remotemonitoraddress', f'ip4://127.0.0.1:{port}',
-                '-reu', '-reusize', '512', '-reuimage', str(self.disk), '+reuimagerw']
+                ]
+        if reu:
+            args += ['-reu', '-reusize', '512']
+            if not cart: args += ['-reuimage', str(self.disk), '+reuimagerw']   # cartridge boot: REU starts empty
         if real:
             args += ['-kernal', str(self.roms / 'kernal.bin'), '-basic', str(self.roms / 'basic.bin'),
                      '-chargen', str(self.roms / 'chargen.bin'),
-                     '-autostart', str(BUILD / 'mini6510.prg'), '-autostartprgmode', '1']
+                     ]
+            args += ['-cartcrt', str(cart)] if cart else ['-autostart', str(BUILD / 'mini6510.prg'), '-autostartprgmode', '1']
+        args += list(extra)
         if warp: args.append('-warp')
         self.proc = subprocess.Popen(args, env=self.env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         self.sock = None
@@ -116,7 +121,7 @@ class Vice:
         try: self.mon('quit', 0.3)
         except Exception: pass
         for p in (self.proc, self.xvfb):
-            try: p.kill()
+            try: p.kill(); p.wait(5)
             except Exception: pass
 
     def __enter__(self): return self

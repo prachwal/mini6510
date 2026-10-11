@@ -1,14 +1,23 @@
 ; blk_reu.s - urządzenie blokowe C64: REU (blok 256 B = adres REU blok*256, bank = starszy bajt numeru)
         .include "bios.inc"
         .include "hw.inc"
-        .export ReadBlk, WriteBlk, LdrRead
         .segment "BIOS"
-
+.ifdef CART
+        .export ReuRead, ReuWrite
+ReuRead:                        ; wariant cartridge: wołane z blk_cart.s
+.else
+        .export ReadBlk, WriteBlk, LdrRead
 LdrRead:                        ; X/Y = blok, ptr = bufor; C=1 błąd
 ReadBlk:
+.endif
         lda #REU_FETCH
         bne BlkDo
+
+.ifdef CART
+ReuWrite:
+.else
 WriteBlk:
+.endif
         lda #REU_STASH
 BlkDo:  sta tmp2
         lda reu_banks           ; 0 = 256 banków (bez sprawdzania)

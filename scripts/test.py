@@ -23,6 +23,7 @@ SUITES = [
     ('dir',     ROOT / 'tests' / 'test_dir.py',     r'WYNIK: OK'),
     ('examples', ROOT / 'tests' / 'test_examples.py', r'WYNIK: OK'),
     ('c64-vice', ROOT / 'tests' / 'test_c64_vice.py', r'WYNIK: OK|SKIP'),   # needs x64sc + Xvfb + xdotool
+    ('c64-cart', ROOT / 'tests' / 'test_c64_cart.py', r'WYNIK: OK|SKIP'),   # needs C64_ROMS (original ROMs)
 ]
 
 

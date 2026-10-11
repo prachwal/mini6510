@@ -91,6 +91,25 @@ python tests/test_c64_vice.py              # headless VICE test (needs x64sc, Xv
 Caveats: tested in VICE with both stand-in ROMs and the original KERNAL 901227-03 / BASIC / charset (`C64_ROMS=<dir> python tests/test_c64_vice.py`, ROMs are not in the repo, `roms/` is git-ignored); date is fixed (2026-10-11), TOD starts at 09:00;
 no IEC/1541/SD disk backend yet; PET is not supported. See [platforms/c64/test/README.md](platforms/c64/test/README.md).
 
+### Cartridge (Magic Desk)
+
+The whole system also boots from a **Magic Desk cartridge** (`build/c64/mini6510.crt`, 128 KB = 16 banks of 8 KB):
+bank 0 holds the boot code and the BIOS, banks 1-15 hold a 120 KB read-only disk image (kernel, `/bin`, examples).
+No `LOAD`/`RUN`, no disk drive: power on and get the `#` prompt.
+
+```sh
+python scripts/build.py --platform c64
+x64sc -kernal kernal.bin -basic basic.bin -chargen chargen.bin -cartcrt build/c64/mini6510.crt          # read-only ROM disk
+x64sc ... -reu -reusize 512 -cartcrt build/c64/mini6510.crt                                             # ROM disk copied to REU: writable
+C64_ROMS=roms python tests/test_c64_cart.py    # VICE test with the original ROMs (skipped without them)
+```
+
+| Cartridge + REU (writable) | Cartridge only (read-only ROM disk) |
+|---|---|
+| ![cart](docs/img/c64-cart-boot.png) | ![cart ro](docs/img/c64-cart-readonly.png) |
+
+Details: [docs/c64.md](docs/c64.md#cartridge-magic-desk).
+
 ## Layout
 
 | Path | Contents |
