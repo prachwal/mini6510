@@ -41,6 +41,30 @@ console, 256-byte block device loader, timer check, jump table at `$F800` (see [
 - Relocatable `.COM` programs with argc/argv, exit codes, stdin/stdout/stderr, `errno`-style messages
 - Syscall ABI: [`os/sys.inc`](os/sys.inc)
 
+## Screenshots (VICE, C64)
+
+| Shell: `ls -l` with timestamps | Pipes: `rot13` and `upper` filters | Programs, directories, clock |
+|---|---|---|
+| ![ls](docs/img/c64-ls.png) | ![pipes](docs/img/c64-pipes.png) | ![dirs](docs/img/c64-dirs-date.png) |
+
+### Examples
+
+```
+# echo Hello | rot13
+Uryyb
+# cat readme.txt | upper
+MINIUNIX: PROSTY SYSTEM DLA 6510.
+# mkdir d1
+# cd d1
+# pwd
+/D1
+# date
+2026-10-11 09:01:34
+# loop &
+[1]
+# ps
+```
+
 ## Quick start
 
 ```sh
