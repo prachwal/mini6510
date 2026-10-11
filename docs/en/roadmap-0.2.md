@@ -6,6 +6,13 @@ is released when its tests pass. Everything is **to be confirmed**; details in `
 
 ## 0.2 - Small and ROM-resident (theme: cartridge without copying to RAM)
 - [ ] Kernel size optimization (-10-20 %): size map per function, shared subroutines, tables, zero page, packed texts, rare commands to `/bin`, `.if FEATURE_X`.
+- [ ] **Test coverage of the assembly code is required** (a rule for every version, not only 0.2):
+  - coverage measurement: record the executed addresses in the Python model (hook on each instruction), map them to source lines with ca65/ld65 debug info (`ca65 -g`, `ld65 --dbgfile`), report per file and routine (text/HTML, lcov) with the list of lines never executed;
+  - branch coverage: every `bcc/bcs/beq/bne/bmi/bpl/bvc/bvs` both taken and not taken;
+  - routine-level unit tests (registers, flags, memory, cycles; edge cases: overflow, zero, negative, carry) for small routines such as `BlkToTs`, the package relocator, number conversions;
+  - fault injection for error paths (disk error 2, UART byte loss, full write overlay, drive timeout);
+  - a coverage threshold enforced in CI (start with the measured value, raise it over time); a new routine without a test does not merge.
+  Out of the measurement and covered by VICE/hardware tests instead: VIC/TED/SID code, IEC/TCBM timing, self-modified code copied to RAM (the bank reader).
 - [ ] Memory budget per machine (table below) checked at build time: `scripts/build.py` fails when a part exceeds its limit and prints the size map per part.
 - [ ] Boot-medium builds: one monolith per machine and boot method (`cart`, `iec`, `tcbm`, `reu`) containing only its own block transport; other transports become packages (`docs/en/drivers.md`).
 - [ ] Low-RAM cartridge mode, execute in place (C16/C116, 16 KB): ROM stays mapped, RAM only for variables (`docs/en/xip.md`).

@@ -77,3 +77,6 @@ The tool `musicplay file.sap` on the Atari: loading SAP (type B first), loading 
 
 ## 2026-10-11 - musicplay (C64, SID)
 The tool `musicplay file.sid` on the C64: PSID first (RSID later through `run`), loading at the address from the header with a collision check against the kernel/BIOS, `init` with the song number, `play` from a 50/60 Hz timer (`TickSet`), keys, silencing the SID on exit. The first candidate after 0.2 (the C64 platform exists). Description: `docs/en/musicplay.md`. Status: to confirm.
+
+## 2026-10-11 - Test coverage of the assembly code is required
+Every routine needs tests, and the coverage of the assembly code is measured (executed addresses mapped to source lines with ca65/ld65 debug info, branch coverage, unit tests of routines, fault injection) with a threshold enforced in CI. Hardware-specific code (VIC/TED/SID, IEC/TCBM timing, self-modified code in RAM) is covered by VICE/hardware tests. Description: `docs/en/roadmap-0.2.md`. Status: to confirm.
