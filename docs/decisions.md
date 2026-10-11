@@ -41,3 +41,6 @@ Cel: cartridge bez kopiowania czegokolwiek do RAM (C16/C116, 16 KB). Kod wykonyw
 - **PET / CBM 8032 (80 kolumn):** nowa platforma `platforms/pet`. Do napisania: ekran 80×25 pod `$8000`, klawiatura (VIA/PIA), zegar 60 Hz, transport IEEE-488 (PIA 6520 + VIA) pod istniejącą warstwę blokową `bios/drive.s` (polecenia U1/U2). Uwaga na tablicę sektorów napędów 2031/4040/8050 i brak cartridge (bootloader z dysku lub ROM w gnieździe `$9000`). Test: VICE `xpet`.
 - **C128:** tryb C64 powinien ruszyć praktycznie bez zmian (test w `x128`). Tryb natywny (`platforms/c128`): MMU `$FF00`, 128 KB RAM, wideo VIC-IIe 40 kol. lub VDC 8563 80 kol., napęd 1571 przez ten sam transport IEC (1328 bloków, inna tablica sektorów).
 Status: do potwierdzenia (priorytet i kolejność).
+
+## 2026-10-11 — Optymalizacja rozmiaru jądra (na później, do potwierdzenia)
+Jądro `os/kernel.s` ma ok. 7,2 KB. Plan: (1) pomiar rozmiaru po funkcjach z mapy linkera, (2) wspólne podprocedury, dispatch przez tabele, więcej zmiennych na stronie zerowej, kompresja tekstów, (3) rzadkie polecenia (`uptime`, `date`, `ps`) do `/bin`, (4) flagi `.if FEATURE_X` pod wersję minimalną (tryb C16/XIP). Cel: -10-20 % bez utraty funkcji; testy regresji pilnują poprawności.
