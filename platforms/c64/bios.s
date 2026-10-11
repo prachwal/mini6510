@@ -136,9 +136,16 @@ PostMain:
 @vend:  jsr RowEnd
 
         ; --- REU (nośnik) ---
+.ifdef CART
+        jsr CartInit            ; instalacja czytnika banków w RAM, blk_mode = REU
+.endif
         ROW RowDisk
         jsr ReuProbe
+.ifdef CART
+        bcs @cartrom
+.else
         bcs @nodisk
+.endif
         lda #1
         sta post_disk
         PRT MsgOk
@@ -159,6 +166,21 @@ PostMain:
         asl                     ; młodszy bajt
 @pk:    jsr PrintDec16
         PRT MsgKb
+.ifdef CART
+        jsr CartToReu           ; ROM -> REU, dysk zapisywalny
+        bcs @cfail
+        PRT MsgPlusRom
+        jmp @dend
+@cfail: inc post_fail
+        PRT MsgFail
+        jmp @dend
+@cartrom:                       ; brak REU: dysk tylko do odczytu z ROM
+        lda #1
+        sta blk_mode
+        sta post_disk
+        PRT MsgRomDisk
+        jmp @dend
+.endif
         jmp @dend
 @nodisk:
         PRT MsgNoReu
@@ -804,6 +826,8 @@ MsgBanner:   .byte "BIOS C64 V0.1",0
 MsgHeader:   .byte "TEST    RANGE           RESULT",0
 MsgLoaded:   .byte "OK",0
 MsgNoReu:    .byte "NO REU",0
+MsgPlusRom:  .byte " +ROM",0
+MsgRomDisk:  .byte "OK RO 120 KB ROM",0
 MsgTmrOk:    .byte "OK 100 HZ",0
 RowCpu:      .byte "CPU",0,0
 RowZp:       .byte "RAM",0,"0002-01FF",0
@@ -814,3 +838,40 @@ RowBios:     .byte "BIOS",0,"E800-FFFF",0
 RowVic:      .byte "VIDEO",0,"D000",0
 RowDisk:     .byte "DISK",0,"DF00",0
 RowTmr:      .byte "TIMER",0,"DC04",0
+
+.ifdef CART
+        .import RomRdStart, ReuWrite
+; ---------------- cartridge: czytnik banków w RAM i kopia ROM -> REU ----------------
+CartInit:
+        lda #0
+        sta blk_mode
+        ldx #(RAMCODE_LEN - 1)
+@c:     lda RomRdStart,x
+        sta RAMCODE,x
+        dex
+        bpl @c
+        rts
+
+CartToReu:                      ; 480 bloków ROM -> REU (blok n -> adres n*256); C=1 błąd
+        lda #<XFER_BUF
+        sta ptr
+        lda #>XFER_BUF
+        sta ptr+1
+        ldx #0
+        ldy #0
+@lp:    jsr RAMCODE             ; czyta blok X/Y z ROM do ptr (zachowuje X/Y)
+        bcs @err
+        jsr ReuWrite
+        bcs @err
+        inx
+        bne @n
+        iny
+@n:     cpx #ROM_BLK_LO
+        bne @lp
+        cpy #ROM_BLK_HI
+        bne @lp
+        clc
+        rts
+@err:   sec
+        rts
+.endif

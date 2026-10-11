@@ -25,3 +25,19 @@ for code in range(128):
 half += bytes(b ^ 0xFF for b in half)          # reverse video (codes 128..255)
 (rom / 'chargen.bin').write_bytes(bytes(half) * 2)
 print('C64: mini6510.prg', os.path.getsize('mini6510.prg'), 'B; test ROMs in build/c64/roms')
+
+
+# --- cartridge Magic Desk: bank 0 = boot + BIOS, banks 1..15 = disk image (480 blocks, read-only ROM) ---
+inc = ['-I', str(root / 'bios'), '-I', str(here), '-I', str(root / 'os')]
+objs = []
+srcs = [here / 'bios.s', here / 'blk_reu.s', here / 'cart' / 'blk_cart.s', here / 'cart' / 'stub_cart.s',
+        root / 'bios' / 'loader.s', root / 'bios' / 'common.s']
+for src in srcs:
+    o = f'cart_{src.stem}.o'
+    subprocess.run([os.environ['CA65'], '-D', 'CART', *inc, str(src), '-o', o], check=True)
+    objs.append(o)
+subprocess.run([os.environ['LD65'], '-C', str(here / 'cart' / 'bios_cart.cfg'), '-o', 'cart_bank0.bin', *objs,
+                '-m', 'cart.map'], check=True)
+subprocess.run([sys.executable, str(root / 'tools' / 'mkdisk.py')], check=True,
+               env=dict(os.environ, DISK_NAME='cart_disk.img', DISK_BLOCKS='480'), stdout=subprocess.DEVNULL)
+subprocess.run([sys.executable, str(root / 'tools' / 'mkcart.py'), 'cart_bank0.bin', 'cart_disk.img', 'mini6510.crt'], check=True)

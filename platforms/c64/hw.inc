@@ -47,6 +47,7 @@ cur_col     = $0302
 cur_row     = $0303
 reu_banks   = $0304     ; liczba banków 64 KB (0 = 256)
 reu_tmp     = $0305     ; bajt roboczy do DMA
+blk_mode    = $030B     ; cartridge: 0 = REU, 1 = ROM (tylko odczyt)
 kb_prev     = $0310     ; 8 B: poprzedni stan macierzy klawiatury
 kb_now      = $0318     ; 8 B: bieżący stan
 rtc_day     = $0320     ; data (BCD), TOD zlicza tylko godzinę
@@ -57,3 +58,10 @@ c_p         = $F8       ; 2 B: wskaźnik w pamięci ekranu
 c_t         = $FB       ; bajt roboczy
 scr_res     = $E0       ; wynik testu RAM $0200-$07FF (przed startem jądra ZP $E0 jest wolna)
 scr_pg      = $E1
+; cartridge Magic Desk (typ 19): banki 8 KB pod $8000, bank 0 = boot + BIOS, banki 1..15 = obraz dysku (32 bloki/bank)
+MD_REG      = $DE00     ; bity 0-5 numer banku, bit 7 = wyłącz cartridge (nie używamy)
+ROM_BLK_LO  = $E0       ; liczba bloków dysku w ROM = $01E0 = 480 (15 banków)
+ROM_BLK_HI  = $01
+RAMCODE     = $0340     ; czytnik banków kopiowany do RAM (musi działać przy $01=$37, poza $8000-$9FFF i $E000+)
+RAMCODE_LEN = 96       ; liczba kopiowanych bajtów czytnika (assert w blk_cart.s)
+XFER_BUF    = $0200     ; bufor 256 B przy kopiowaniu ROM -> REU
