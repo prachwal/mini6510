@@ -118,6 +118,25 @@ Working in the shell:
 
 Details: [docs/c64.md](docs/c64.md#cartridge-magic-desk).
 
+## Commodore Plus/4 port
+
+MiniUnix also boots on the **Commodore Plus/4** (TED, 64 KB) from a 32 KB cartridge image (`build/plus4/mini6510-plus4.bin`,
+CART-1 low + high). The original KERNAL finds the `CBM` signature at `$8007` and calls the cartridge at reset; the BIOS
+takes over (RAM only, no KERNAL), prints the POST table and boots MiniUnix from a 27 KB disk stored in the cartridge ROM.
+Writes go to a 6 KB RAM overlay (lost at reset), so `echo > file`, `mkdir`, `cp` of small files etc. work.
+
+```sh
+python scripts/build.py --platform plus4
+xplus4 -kernal kernal.bin -basic basic.bin -functionlo functionlo.bin -functionhi functionhi.bin -cart build/plus4/mini6510-plus4.bin
+PLUS4_ROMS=roms-plus4 python tests/test_plus4_cart.py   # VICE test with the original ROMs (skipped without them)
+```
+
+| POST and boot | Shell | Writes, directories, clock |
+|---|---|---|
+| ![plus4 start](docs/img/plus4-start.png) | ![plus4 shell](docs/img/plus4-shell.png) | ![plus4 dirs](docs/img/plus4-write-dirs.png) |
+
+Details: [docs/plus4.md](docs/plus4.md).
+
 ## Layout
 
 | Path | Contents |

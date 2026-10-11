@@ -27,3 +27,6 @@ Platformy rozdzielone na `bios/` + `platforms/<nazwa>/`; jądro zależy tylko od
 
 ## 2026-10-11 — Cartridge Magic Desk (branch feature/c64-cartridge)
 Rozruch całego systemu z cartridge: bank 0 = boot + BIOS, banki 1-15 = dysk ROM 480 bloków. Z REU kopiujemy dysk do REU (zapisywalny), bez REU tylko odczyt. Do potwierdzenia: merge do main.
+
+## 2026-10-11 — Port Commodore Plus/4 (branch feature/plus4)
+Plus/4 startuje z cartridge CART-1 (32 KB). Dysk w ROM (108 bloków) + zapisywalna nakładka w RAM (24 bloki). Czas programowy (brak RTC). Do potwierdzenia: merge do main.

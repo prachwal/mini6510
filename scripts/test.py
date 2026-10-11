@@ -24,13 +24,14 @@ SUITES = [
     ('examples', ROOT / 'tests' / 'test_examples.py', r'WYNIK: OK'),
     ('c64-vice', ROOT / 'tests' / 'test_c64_vice.py', r'WYNIK: OK|SKIP'),   # needs x64sc + Xvfb + xdotool
     ('c64-cart', ROOT / 'tests' / 'test_c64_cart.py', r'WYNIK: OK|SKIP'),   # needs C64_ROMS (original ROMs)
+    ('plus4-cart', ROOT / 'tests' / 'test_plus4_cart.py', r'WYNIK: OK|SKIP'),   # needs PLUS4_ROMS (original ROMs)
 ]
 
 
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith('--')]
     if '--no-build' not in sys.argv:
-        for plat in ('generic', 'c64'):
+        for plat in ('generic', 'c64', 'plus4'):
             subprocess.run([sys.executable, str(ROOT / 'scripts' / 'build.py'), '--platform', plat],
                            check=True, stdout=subprocess.DEVNULL)
     env = dict(os.environ, PYTHONPATH=os.pathsep.join(str(ROOT / d) for d in ('sim', 'tools', 'tests')))

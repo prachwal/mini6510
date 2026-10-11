@@ -33,6 +33,10 @@ def consts(path):
         m = re.match(r'^(\w+)\s*=\s*\$([0-9A-Fa-f]+)', line)
         if m:
             out[m.group(1)] = int(m.group(2), 16)
+            continue
+        m = re.match(r'^(\w+)\s*=\s*([0-9]+)\b', line)
+        if m:
+            out[m.group(1)] = int(m.group(2))
     return out
 
 
@@ -81,6 +85,8 @@ def main():
 
     # --- disk image ---
     env = dict(os.environ, PYTHONPATH=str(ROOT / 'tools'), KBASE=str(pc['KBASE']))
+    if 'DISK_BLOCKS' in pc:
+        env['DISK_BLOCKS'] = str(pc['DISK_BLOCKS'])
     subprocess.run([py, str(ROOT / 'tools' / 'mkdisk.py')], cwd=BUILD, check=True, env=env)
     if (P / 'post_build.py').exists():
         subprocess.run([py, str(P / 'post_build.py')], cwd=BUILD, check=True,
