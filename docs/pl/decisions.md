@@ -77,3 +77,6 @@ Narzędzie `musicplay plik.sap` na Atari: wczytanie SAP (typ B najpierw), załad
 
 ## 2026-10-11 — musicplay (C64, SID)
 Narzędzie `musicplay plik.sid` na C64: PSID najpierw (RSID później przez `run`), wczytanie pod adres z nagłówka z kontrolą kolizji z jądrem/BIOS-em, `init` z numerem utworu, `play` z timera 50/60 Hz (`TickSet`), klawisze, wyciszenie SID po wyjściu. Pierwszy kandydat po 0.2 (platforma C64 istnieje). Opis: `docs/en/musicplay.md`. Status: do potwierdzenia.
+
+## 2026-10-11 — Pokrycie kodu asemblera testami jest wymagane
+Każda procedura ma testy, a pokrycie kodu asemblera jest mierzone (wykonane adresy mapowane na linie źródłowe z informacji debugowej ca65/ld65, pokrycie gałęzi, testy jednostkowe procedur, wstrzykiwanie błędów) z progiem egzekwowanym w CI. Kod zależny od sprzętu (VIC/TED/SID, timing IEC/TCBM, kod samomodyfikujący w RAM) pokrywają testy VICE/na sprzęcie. Opis: `docs/en/roadmap-0.2.md`. Status: do potwierdzenia.
