@@ -88,7 +88,7 @@ python scripts/run_vice.py                 # window mode (needs VICE x64sc and a
 python tests/test_c64_vice.py              # headless VICE test (needs x64sc, Xvfb, xdotool; skipped when missing)
 ```
 
-Caveats: tested in VICE with stand-in KERNAL/charset ROMs (not the original ones); date is fixed (2026-10-11), TOD starts at 09:00;
+Caveats: tested in VICE with both stand-in ROMs and the original KERNAL 901227-03 / BASIC / charset (`C64_ROMS=<dir> python tests/test_c64_vice.py`, ROMs are not in the repo, `roms/` is git-ignored); date is fixed (2026-10-11), TOD starts at 09:00;
 no IEC/1541/SD disk backend yet; PET is not supported. See [platforms/c64/test/README.md](platforms/c64/test/README.md).
 
 ## Layout
