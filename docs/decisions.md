@@ -33,3 +33,6 @@ Plus/4 startuje z cartridge CART-1 (32 KB). Dysk w ROM (108 bloków) + zapisywal
 
 ## 2026-10-11 — Napędy dysków (branch feature/iec-drive)
 Sterownik napędu 8 jako urządzenie blokowe: IEC/1541 (C64) i TCBM/1551 (Plus/4, natywny napęd tej maszyny), wspólna warstwa U1/U2. Napęd z dyskiem MiniUnix ma pierwszeństwo przed REU/ROM. BIOS Plus/4 urósł do 5 KB (dysk ROM 104 bloki, BIOS od $E700, nakładka 23 bloki). Opis: `docs/drives.md`. Do potwierdzenia: merge; następny krok: tryb niskiej pamięci (C16/C116, wykonywanie z ROM).
+
+## 2026-10-11 — Tryb niskiej pamięci / XIP (branch feature/c16-xip)
+Cel: cartridge bez kopiowania czegokolwiek do RAM (C16/C116, 16 KB). Kod wykonywany z ROM, RAM tylko na zmienne. Na razie tylko projekt: `docs/xip.md` (do potwierdzenia: minimalny RAM 16 KB, własny zestaw znaków w ROM cartridge).
