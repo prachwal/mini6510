@@ -29,8 +29,31 @@ Status of 0.1: C64 (cartridge, REU, 1541/IEC), Plus/4 (cartridge, ROM disk, 1551
 
 ## New platforms
 - [ ] PET / CBM 8032 (80 columns): screen at `$8000`, keyboard (VIA/PIA), 60 Hz timer, IEEE-488 transport under `bios/drive.s`, `xpet` tests.
+- [ ] Atari 800/XL/XE: ANTIC text + POKEY, SIO disk (sector = block), 8/16 KB cartridge at `$A000` fits XIP; test in Atari800 emulator.
+- [ ] Apple II/II+/IIe: boot from floppy or card ROM, 40 columns (interleaved screen memory), disk via ProDOS block calls (Disk II GCR driver later), no IRQ without a clock card.
 - [ ] C128: C64 mode first (test in `x128`); native mode later (MMU, VDC 80 columns, 1571).
 
 ## Housekeeping
 - [ ] Re-test on real hardware (IEC/TCBM timing), 1541 on Plus/4 over IEC.
 - [ ] Update `docs/` and screenshots; tag `v0.2`.
+
+## Candidate machines (6502 family)
+| Machine | CPU | Disk / medium | Cartridge | Effort vs Plus/4 |
+|---|---|---|---|---|
+| C64 (done), Plus/4 (done) | 6510 / 7501 | IEC 1541, TCBM 1551, REU, ROM | yes | - |
+| C16 / C116 | 7501 | tape, 1551 | yes | small (XIP) |
+| VIC-20 | 6502 | IEC, 3.5-35 KB RAM | yes (`$A000`) | medium (tiny RAM, XIP) |
+| C128 | 8502 | IEC 1571, MMU, VDC | yes | small (C64 mode) / large (native) |
+| PET / CBM 8032 | 6502 | IEEE-488 | ROM socket | medium |
+| Atari 800/XL/XE | 6502C | SIO | yes | medium |
+| Apple II/IIe | 6502 | Disk II / ProDOS | no | large |
+| BBC Micro | 6502 | DFS/ADFS (Acorn) | ROM sockets | large |
+| Oric Atmos | 6502 | tape / Microdisc | no | medium |
+| NES / SNES-class, others | 2A03 / 65816 | none | cartridge only | out of scope (no disk) |
+Rule of thumb: the kernel stays the same; a machine needs only its monolithic core (video, keyboard, timer, first block device).
+
+## Native applications
+A program built for MiniUnix runs on **every** supported machine only if it uses the BIOS contract (`bios.inc`: console, keys, blocks, clock) and
+not hardware directly. Rules: no direct video/IO access, no absolute addresses outside the program slot, 40-column safe output (or ask the console
+for its width), no machine-specific features. Hardware-specific programs (graphics, sound, games) are built per machine
+(`/bin` per platform, or a package with a machine tag). Games from the original machine are separate (`run`, see above).
