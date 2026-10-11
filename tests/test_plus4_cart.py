@@ -25,7 +25,7 @@ with vice.Vice(roms=roms, machine='plus4', cart=CART) as v:
     ok('POST: BIOS PLUS4 banner, TED video, timer 100 Hz', 'BIOS PLUS4 V0.1' in boot and 'OK 100 HZ' in boot and 'VIDEO   FF00            OK' in boot)
     rows = [l for l in boot.splitlines() if l.startswith('RAM ')]
     ok('POST: all RAM ranges OK', len(rows) == 3 and all(l.rstrip().endswith('OK') for l in rows))
-    ok('POST: ROM disk + RAM overlay', 'OK 27KB ROM+RAM' in boot)
+    ok('POST: ROM disk + RAM overlay', 'OK 26KB ROM+RAM' in boot)
     ok('autostart from the cartridge (KERNAL CBM signature)', 'MiniUnix 0.1 (6510)' in boot)
     v.screenshot(ROOT / 'build' / 'plus4' / 'screen-start.png')
     sc = v.cmd('ls -l', 'BIG.TXT')

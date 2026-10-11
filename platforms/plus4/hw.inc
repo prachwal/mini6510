@@ -90,3 +90,5 @@ TPI_PC      = $FEF2
 TPI_DDRA    = $FEF3
 TPI_DDRB    = $FEF4
 TPI_DDRC    = $FEF5
+iec_rp      = $03D6     ; wait repeat count
+iec_rep     = $03D7

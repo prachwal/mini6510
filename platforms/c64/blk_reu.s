@@ -6,9 +6,8 @@
         .export ReuRead, ReuWrite
 ReuRead:                        ; wariant cartridge: wołane z blk_cart.s
 .else
-        .export ReadBlk, WriteBlk, LdrRead
-LdrRead:                        ; X/Y = blok, ptr = bufor; C=1 błąd
-ReadBlk:
+        .export ReadBlk, WriteBlk
+ReadBlk:                        ; X/Y = blok, ptr = bufor; C=1 błąd
 .endif
         lda #REU_FETCH
         bne BlkDo

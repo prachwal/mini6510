@@ -1,7 +1,7 @@
 ; stub_cart.s - start z cartridge Magic Desk (bank 0 pod $8000): KERNAL widzi CBM80 i skacze tutaj.
 ; Kopiuje BIOS do RAM ($E800, $F800), potem wyłącza ROM-y z kodu w RAM (kod w cartridge nie może zmienić $01).
         .include "bios.inc"
-        .import __JUMPTAB_LOAD__, __BIOS_LOAD__, __BIOS_SIZE__
+        .import __JUMPTAB_LOAD__, __BIOS_LOAD__, __BIOS_SIZE__, __DRV_LOAD__, __DRV_SIZE__
         .import Reset
 
         .segment "CARTHDR"
@@ -38,6 +38,17 @@ Boot:   sei
         lda #$F8
         sta ptr2+1
         lda #1
+        sta tmp
+        jsr Copy
+        lda #<__DRV_LOAD__      ; sterownik napędu -> $F900
+        sta ptr
+        lda #>__DRV_LOAD__
+        sta ptr+1
+        lda #0
+        sta ptr2
+        lda #$F9
+        sta ptr2+1
+        lda #>(__DRV_SIZE__ + 255)
         sta tmp
         jsr Copy
         ldx #TrampEnd - Tramp - 1   ; ostatni krok z RAM: po $01=$35 cartridge znika

@@ -4,6 +4,9 @@ from pathlib import Path
 
 root = Path(os.environ['ROOT']); here = root / 'platforms' / 'c64'
 shutil.copy('bios.rom', 'mini6510.prg')
+# 1541 disk (.d64, 683 blocks) with the same system, used when a drive on IEC unit 8 holds it
+subprocess.run([sys.executable, str(root / 'tools' / 'mkdisk.py')], check=True,
+               env=dict(os.environ, DISK_NAME='drive.d64', DISK_BLOCKS='683'), stdout=subprocess.DEVNULL)
 rom = Path('roms'); rom.mkdir(exist_ok=True)
 subprocess.run([os.environ['CA65'], '-I', '.', str(here / 'test' / 'testkernal.s'), '-o', 'testkernal.o'], check=True)
 subprocess.run([os.environ['LD65'], '-C', str(here / 'test' / 'testkernal.cfg'), '-o', str(rom / 'kernal.bin'), 'testkernal.o'], check=True)
@@ -31,7 +34,7 @@ print('C64: mini6510.prg', os.path.getsize('mini6510.prg'), 'B; test ROMs in bui
 inc = ['-I', str(root / 'bios'), '-I', str(here), '-I', str(root / 'os')]
 objs = []
 srcs = [here / 'bios.s', here / 'blk_reu.s', here / 'cart' / 'blk_cart.s', here / 'cart' / 'stub_cart.s',
-        root / 'bios' / 'loader.s', root / 'bios' / 'common.s']
+        root / 'bios' / 'loader.s', root / 'bios' / 'common.s', root / 'bios' / 'iec.s', root / 'bios' / 'drive.s']
 for src in srcs:
     o = f'cart_{src.stem}.o'
     subprocess.run([os.environ['CA65'], '-D', 'CART', *inc, str(src), '-o', o], check=True)

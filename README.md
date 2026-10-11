@@ -122,8 +122,8 @@ Details: [docs/c64.md](docs/c64.md#cartridge-magic-desk).
 
 MiniUnix also boots on the **Commodore Plus/4** (TED, 64 KB) from a 32 KB cartridge image (`build/plus4/mini6510-plus4.bin`,
 CART-1 low + high). The original KERNAL finds the `CBM` signature at `$8007` and calls the cartridge at reset; the BIOS
-takes over (RAM only, no KERNAL), prints the POST table and boots MiniUnix from a 27 KB disk stored in the cartridge ROM.
-Writes go to a 6 KB RAM overlay (lost at reset), so `echo > file`, `mkdir`, `cp` of small files etc. work.
+takes over (RAM only, no KERNAL), prints the POST table and boots MiniUnix from a 26 KB disk stored in the cartridge ROM.
+Writes go to a 5.75 KB RAM overlay (lost at reset), so `echo > file`, `mkdir`, `cp` of small files etc. work.
 
 ```sh
 python scripts/build.py --platform plus4
@@ -136,6 +136,13 @@ PLUS4_ROMS=roms-plus4 python tests/test_plus4_cart.py   # VICE test with the ori
 | ![plus4 start](docs/img/plus4-start.png) | ![plus4 shell](docs/img/plus4-shell.png) | ![plus4 dirs](docs/img/plus4-write-dirs.png) |
 
 Details: [docs/plus4.md](docs/plus4.md).
+
+## Disk drives
+
+Both ports can use a real drive as the block device: **1541 over IEC** (C64) and **1551 over TCBM** (Plus/4's native drive),
+bit-banged by the BIOS (no KERNAL). A drive holding a MiniUnix disk (`build/<platform>/drive.d64`, 683 blocks) wins over the
+REU/ROM disk, and writes persist in the image. Tests run on VICE's true-drive emulation (`tests/test_c64_drive.py`,
+`tests/test_plus4_drive.py`; ROMs `dos1541.bin` / `dos1551.bin` needed). Details: [docs/drives.md](docs/drives.md).
 
 ## Layout
 

@@ -713,7 +713,7 @@ NmiIrq: rti
 MsgBanner:   .byte "BIOS PLUS4 V0.1",0
 MsgHeader:   .byte "TEST    RANGE           RESULT",0
 MsgLoaded:   .byte "OK",0
-MsgRomDisk:  .byte "OK 27KB ROM+RAM",0
+MsgRomDisk:  .byte "OK 26KB ROM+RAM",0
 MsgIecDisk:  .byte "OK IEC 8",0
 MsgTcbDisk:  .byte "OK 1551 TCBM 8",0
 MsgTmrOk:    .byte "OK 100 HZ",0

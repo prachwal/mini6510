@@ -49,8 +49,10 @@ IecIdle:                        ; release all lines
         jsr ClkHi
         jmp DataHi
 
-IecWait:                        ; wait until (port & tmp) == tmp2; C=1 on timeout (iec_to * 65536 * ~17 cycles)
-        ldy iec_to
+IecWait:                        ; wait until (port & tmp) == tmp2; C=1 on timeout (iec_rp * iec_to * ~4.4 ms)
+        lda iec_rp
+        sta iec_rep
+@o:     ldy iec_to
         ldx #0
 @l:     lda IEC_PORT
         and tmp
@@ -60,6 +62,8 @@ IecWait:                        ; wait until (port & tmp) == tmp2; C=1 on timeou
         bne @l
         dey
         bne @l
+        dec iec_rep
+        bne @o
         sec
         rts
 @ok:    clc
@@ -120,9 +124,13 @@ IecAtnSend:
         jsr DataHi
         lda #64
         sta iec_to
-        WaitFor IEC_DATAIN, 0   ; device answers by pulling DATA
+        lda #1
+        sta iec_rp
+        WaitFor IEC_DATAIN, 0   ; device answers by pulling DATA (hardware auto-acknowledge, fast)
         lda #255
         sta iec_to
+        lda #8                  ; later waits are long: the drive may be busy for seconds
+        sta iec_rp
         bcs @nodev
         ldx #0                  ; let the drive's ATN service run (~1 ms) before the clock is released
         jsr Delay
@@ -262,4 +270,6 @@ IecPrep:                        ; one-time hardware setup
         IecHwInit
         lda #255
         sta iec_to
+        lda #8
+        sta iec_rp
         jmp IecIdle

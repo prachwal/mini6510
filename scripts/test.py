@@ -25,6 +25,8 @@ SUITES = [
     ('c64-vice', ROOT / 'tests' / 'test_c64_vice.py', r'WYNIK: OK|SKIP'),   # needs x64sc + Xvfb + xdotool
     ('c64-cart', ROOT / 'tests' / 'test_c64_cart.py', r'WYNIK: OK|SKIP'),   # needs C64_ROMS (original ROMs)
     ('plus4-cart', ROOT / 'tests' / 'test_plus4_cart.py', r'WYNIK: OK|SKIP'),   # needs PLUS4_ROMS (original ROMs)
+    ('c64-drive', ROOT / 'tests' / 'test_c64_drive.py', r'WYNIK: OK|SKIP'),   # needs C64_ROMS incl. dos1541.bin
+    ('plus4-drive', ROOT / 'tests' / 'test_plus4_drive.py', r'WYNIK: OK|SKIP'),   # needs PLUS4_ROMS incl. dos1551.bin
 ]
 
 

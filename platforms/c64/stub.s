@@ -1,6 +1,6 @@
 ; stub.s - program ładowany do $0801: wiersz BASIC "10 SYS2061" + kopiowanie BIOS do $F800 i start
         .include "bios.inc"
-        .import __JUMPTAB_LOAD__, __BIOS_LOAD__, __BIOS_SIZE__
+        .import __JUMPTAB_LOAD__, __BIOS_LOAD__, __BIOS_SIZE__, __DRV_LOAD__, __DRV_SIZE__
         .import Reset
 
         .segment "LOADADDR"
@@ -43,6 +43,17 @@ Boot:   sei
         lda #$F8
         sta ptr2+1
         lda #1
+        sta tmp
+        jsr Copy
+        lda #<__DRV_LOAD__      ; sterownik napędu -> $F900
+        sta ptr
+        lda #>__DRV_LOAD__
+        sta ptr+1
+        lda #0
+        sta ptr2
+        lda #$F9
+        sta ptr2+1
+        lda #>(__DRV_SIZE__ + 255)
         sta tmp
         jsr Copy
         lda #$35                ; RAM + I/O
