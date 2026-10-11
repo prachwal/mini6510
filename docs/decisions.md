@@ -71,3 +71,6 @@ Pamięć jest głównym ograniczeniem: każdy element (jądro, BIOS, sterownik, 
 
 ## 2026-10-11 — Nośnik rozruchowy w monolicie
 Monolit zawiera dokładnie jeden transport nośnika rozruchowego, zależnie od sposobu startu: cartridge (czytnik ROM-dysku), napęd IEC/1541, TCBM/1551 albo REU. Inne transporty to pakiety ładowane z woluminu rozruchowego. Osobny build na maszynę i sposób startu (`--boot cart|iec|tcbm|reu`), BIOS mniejszy, bez wszystkich transportów naraz. Dotyczy 0.2. Opis: `docs/drivers.md`.
+
+## 2026-10-11 — musicplay (Atari, SAP)
+Narzędzie `musicplay plik.sap` na Atari: wczytanie SAP (typ B najpierw), załadowanie bloków, `INIT` z numerem utworu, `PLAYER` z timera co ramkę (`TickSet hz`). `.sid` na Atari tylko przez konwersję offline. Wymaga platformy Atari (nierozpoczętej), więc w „Ideas”. Opis: `docs/musicplay.md`. Status: do potwierdzenia.

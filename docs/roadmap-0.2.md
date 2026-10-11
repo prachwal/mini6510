@@ -30,6 +30,7 @@ Done when: real `.prg`/`.d64` games load and start in VICE, `ls`/`cat`/`cp` work
 
 ## Ideas (not scheduled; at most one new machine after 0.2)
 - Machines: PET / CBM 8032 (IEEE-488), C128 (C64 mode first, native later), Atari 800/XL/XE (SIO, cartridge fits XIP), Apple II (ProDOS blocks), VIC-20, BBC Micro, Oric.
+- `musicplay file.sap` on Atari (SAP type B first; `docs/musicplay.md`), needs the Atari platform and `TickSet hz`. SID music on C64 natively later; `.sid` on Atari only by offline conversion.
 - Pac-Man (text mode), more portable games and tools.
 - Real-hardware tests (IEC/TCBM timing), 1541 on Plus/4 over IEC.
 - Tag and release notes per version; update `docs/` and screenshots each time.
