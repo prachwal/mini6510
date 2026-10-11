@@ -1,0 +1,13 @@
+BIOS 6510 V0.1
+
+TEST    RANGE           RESULT
+CPU                     OK NMOS
+RAM     0002-01FF       OK
+RAM     0200-D7FF       FAIL 43XX
+RAM     E000-F7FF       OK
+RAM     F800-FFFF       OK
+CONSOLE DF00            OK
+DISK    DF10            OK 512 KB
+TIMER   DF30            OK 100 HZ
+
+POST FAILED

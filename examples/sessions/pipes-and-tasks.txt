@@ -1,0 +1,88 @@
+BIOS 6510 V0.1
+
+TEST    RANGE           RESULT
+CPU                     OK NMOS
+RAM     0002-01FF       OK
+RAM     0200-D7FF       OK
+RAM     E000-F7FF       OK
+RAM     F800-FFFF       OK SHADOW
+CONSOLE DF00            OK
+DISK    DF10            OK 512 KB
+TIMER   DF30            OK 100 HZ
+
+PRESS S FOR SETUP
+LOADING SYSTEM
+MiniUnix 0.1 (6510)
+# ps
+0 R shell
+# cat big.txt | upper | cat > up.txt
+# echo abc | upper | upper | upper
+ABC
+# ls | upper
+BIN/         DIR
+README.TXT   61
+NOTES.TXT    56
+BIG.TXT      4700
+UP.TXT       4700
+# tick a 3 &
+[1]
+# tick b 3 &
+[2]
+# ps
+0 R shell
+1 R tick
+2 R tick
+#
+# tick x 2
+a 1
+b 1
+x 1
+a 2
+b 2
+x 2
+a 3
+b 3
+# status
+rc 0
+# loop &
+[3]
+# ps
+0 R shell
+1 R tick
+2 R tick
+3 R loop
+# kill 1
+[1] done
+# ps
+0 R shell
+2 R tick
+3 R loop
+# loop &
+[1]
+# loop &
+loop: no free task slot
+# loop &
+loop: no free task slot
+# loop &
+loop: no free task slot
+# ps
+0 R shell
+1 R loop
+2 R tick
+3 R loop
+# kill 1
+[1] done
+# kill 2
+[2] done
+# kill 3
+[3] done
+# wc nofile
+no such file
+# status
+rc 1
+# cat < readme.txt | upper
+MINIUNIX: PROSTY SYSTEM DLA 6510.
+PLIKI CIAGLE, BLOKI 256 B.
+# echo end
+end
+#

@@ -1,0 +1,44 @@
+BIOS 6510 V0.1
+
+TEST    RANGE           RESULT
+CPU                     OK NMOS
+RAM     0002-01FF       OK
+RAM     0200-D7FF       OK
+RAM     E000-F7FF       OK
+RAM     F800-FFFF       OK SHADOW
+CONSOLE DF00            OK
+DISK    DF10            OK 14 KB
+TIMER   DF30            OK 100 HZ
+
+PRESS S FOR SETUP
+LOADING SYSTEM
+MiniUnix 0.1 (6510)
+# ls
+F1           900
+F2           900
+F3           900
+F4           900
+F5           900
+# df
+blocks total 59, free 3, largest 3
+# rm f2
+# rm f4
+# df
+blocks total 59, free 11, largest 4
+# cp f1 n1
+# df
+blocks total 59, free 7, largest 4
+# cp f3 n3
+# df
+blocks total 59, free 3, largest 3
+# defrag
+defrag: moved 0
+# df
+blocks total 59, free 3, largest 3
+# ls
+F1           900
+N1           900
+F3           900
+N3           900
+F5           900
+#

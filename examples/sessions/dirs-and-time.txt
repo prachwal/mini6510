@@ -1,0 +1,96 @@
+BIOS 6510 V0.1
+
+TEST    RANGE           RESULT
+CPU                     OK NMOS
+RAM     0002-01FF       OK
+RAM     0200-D7FF       OK
+RAM     E000-F7FF       OK
+RAM     F800-FFFF       OK SHADOW
+CONSOLE DF00            OK
+DISK    DF10            OK 512 KB
+TIMER   DF30            OK 100 HZ
+
+PRESS S FOR SETUP
+LOADING SYSTEM
+MiniUnix 0.1 (6510)
+# pwd
+/
+# ls -l
+2026-10-11 00:00 BIN/         dir
+2026-10-11 00:00 README.TXT   61
+2026-10-11 00:00 NOTES.TXT    56
+2026-10-11 00:00 BIG.TXT      4700
+# mkdir work
+# mkdir work
+mkdir: file exists
+# cd work
+# pwd
+/WORK
+# mkdir sub
+# echo hi > a.txt
+# echo more >> a.txt
+# cat a.txt
+hi
+more
+# ls -l
+2026-10-11 14:45 SUB/         dir
+2026-10-11 14:45 A.TXT        8
+# cd sub
+# pwd
+/WORK/SUB
+# cd ..
+# cd ..
+# pwd
+/
+# mv big.txt work
+# ls
+BIN/         dir
+README.TXT   61
+NOTES.TXT    56
+WORK/        dir
+# ls work
+BIG.TXT      4700
+SUB/         dir
+A.TXT        8
+# mv work/a.txt work/sub
+# ls work/sub
+A.TXT        8
+# rmdir work
+rmdir: directory not empty
+# rm work
+rm: is a directory
+# cd /work/sub
+# cd /nodir
+cd: no such file
+# cat /readme.txt
+MiniUnix: prosty system dla 6510.
+Pliki ciagle, bloki 256 B.
+# cd /bin
+# hello x
+hello
+x
+# cd /
+# mv work wk
+# ls
+BIN/         dir
+README.TXT   61
+NOTES.TXT    56
+WK/          dir
+# date
+2026-10-11 14:45:13
+# cp wk/big.txt wk/sub/b
+# ls wk/sub
+B            4700
+A.TXT        8
+# mv wk wk/sub
+mv: bad argument
+# rm wk/sub/b
+# rm wk/big.txt
+# rm wk/sub/a.txt
+# rmdir wk/sub
+# rmdir wk
+# ls
+BIN/         dir
+README.TXT   61
+NOTES.TXT    56
+#
