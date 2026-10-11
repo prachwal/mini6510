@@ -44,3 +44,6 @@ Status: do potwierdzenia (priorytet i kolejność).
 
 ## 2026-10-11 — Optymalizacja rozmiaru jądra (na później, do potwierdzenia)
 Jądro `os/kernel.s` ma ok. 7,2 KB. Plan: (1) pomiar rozmiaru po funkcjach z mapy linkera, (2) wspólne podprocedury, dispatch przez tabele, więcej zmiennych na stronie zerowej, kompresja tekstów, (3) rzadkie polecenia (`uptime`, `date`, `ps`) do `/bin`, (4) flagi `.if FEATURE_X` pod wersję minimalną (tryb C16/XIP). Cel: -10-20 % bez utraty funkcji; testy regresji pilnują poprawności.
+
+## 2026-10-11 — Ładowalne sterowniki + drukarka (na później, do potwierdzenia)
+Sterownik ładowany z dysku do obszaru RAM z automatyczną relokacją (tabela poprawek adresów w pliku modułu) i rejestrowany w tablicy sterowników (nazwa, tablica wejść, adres, rozmiar); jądro używa urządzeń przez tablicę (`/dev/lp`). Transport startowy zostaje w BIOS-ie/ROM-ie. Pierwszy kandydat: drukarka IEC (adres 4). Opis: `docs/drivers.md`.
