@@ -65,3 +65,6 @@ Plan podzielony na wersje: 0.2 (mała i rezydentna w ROM: optymalizacja, XIP, wo
 
 ## 2026-10-11 — Wspólny BIOS grafiki
 Wymóg użytkownika: jeden wspólny interfejs grafiki w BIOS-ie dla wszystkich maszyn (nie ładny, tylko wspólny). Wąski kontrakt: `GfxCaps`, `GfxMode`, `Clear`, `Plot`, `Fill`, `Line`; aplikacje czytają rozmiar i dostosowują układ (w komórkach 8×8). Efekty i sprite'y poza kontraktem. Wersja 0.3. Opis: `docs/graphics.md`. Status: do potwierdzenia.
+
+## 2026-10-11 — Budżet pamięci
+Pamięć jest głównym ograniczeniem: każdy element (jądro, BIOS, sterownik, grafika) ma limit ROM/RAM w tabeli w `docs/roadmap-0.2.md`, a `scripts/build.py` ma przerywać build po jego przekroczeniu (0.2). Kod i stałe w ROM (XIP), pakiety ładowane na żądanie, bitmapa grafiki, bufor dysku i nakładka zapisu nie jednocześnie na małej maszynie. Status: do potwierdzenia.

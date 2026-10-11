@@ -6,6 +6,7 @@ is released when its tests pass. Everything is **to be confirmed**; details in `
 
 ## 0.2 - Small and ROM-resident (theme: cartridge without copying to RAM)
 - [ ] Kernel size optimization (-10-20 %): size map per function, shared subroutines, tables, zero page, packed texts, rare commands to `/bin`, `.if FEATURE_X`.
+- [ ] Memory budget per machine (table below) checked at build time: `scripts/build.py` fails when a part exceeds its limit and prints the size map per part.
 - [ ] Low-RAM cartridge mode, execute in place (C16/C116, 16 KB): ROM stays mapped, RAM only for variables (`docs/xip.md`).
 - [ ] Mount table with the cartridge ROM disk as the base volume `/` (read-only) and `/ram` (RAM disk/REU), `mount`/`umount`, PATH `/ram/bin`, `/bin`.
 - [ ] Snake as a portable program in `/bin` (console + `KeyGet` + tick only), run on C64, Plus/4 and C16 as the contract test.
@@ -48,3 +49,24 @@ Done when: real `.prg`/`.d64` games load and start in VICE, `ls`/`cat`/`cp` work
 A program runs on every supported machine only if it uses the BIOS contract (`bios.inc`: console, keys, blocks, clock, later sound) and not
 hardware directly: no direct video/IO, no absolute addresses outside the slot, fixed 40x24 layout (or ask the console for its width).
 Machine-specific programs are built per platform.
+
+## Memory budget (memory is the main constraint)
+Measured in 0.1 (bytes) and proposed limits. A limit is a build error, not a hint. RAM = what the part needs at run time.
+| Part | 0.1 now (ROM/image) | 0.2 limit | RAM at run time |
+|---|---|---|---|
+| Kernel (`kernel.bin`) | 7202 | 6000 (XIP: in ROM) | variables + process table, no code |
+| BIOS C64 (`bios.rom`) | 4196 | 4000 | I/O vars `$03xx`; in XIP mode no code in RAM |
+| BIOS Plus/4 | 5120 | 4800 | as above; today BIOS is copied to `$E700` (to remove in XIP) |
+| BIOS generic | 2048 | 2048 | - |
+| Driver package | - | 256 (1 block) | 256 + its variables |
+| Graphics (`gfx`) | - | 600 per platform | bitmap 8000 (only if free RAM) |
+| ROM disk (data) | C64 480 blocks, Plus/4 104 blocks | - | write overlay 23 blocks (Plus/4) |
+Machine RAM classes and what must hold:
+| Machine | RAM | Reserved (screen, stack, ZP, system) | Left for programs (target) |
+|---|---|---|---|
+| C16 / C116 | 16 KB | about 2 KB | 10-12 KB (XIP; no graphics bitmap) |
+| VIC-20 (+16 KB) | 21 KB | about 2 KB | 12-16 KB (XIP) |
+| Plus/4, C64 | 64 KB | about 4 KB | up to `$D000` (slots), graphics bitmap fits |
+Rules: code and constants stay in ROM (XIP); packages are loaded on demand and freed; the graphics bitmap, the disk buffer and the write overlay
+never exist at the same time on a small machine (graphics reports "no" or the overlay shrinks); hot variables go to zero page; texts are packed; every new
+feature states its ROM and RAM cost in this table before it is accepted.
