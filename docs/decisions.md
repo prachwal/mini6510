@@ -59,3 +59,6 @@ ROM-dysk cartridge = wolumin bazowy `/` (tylko odczyt) z programami (`/bin`) i s
 
 ## 2026-10-11 — Zgodność wsteczna i uruchamianie gier (na później, do potwierdzenia)
 Cel: uruchamianie istniejących gier/PRG z dysków CBM DOS. Gra przejmuje całą maszynę, wyjście = reset (gry nie mają exit), więc system nie musi przeżyć uruchomienia gry. Polecenie `run`/`load`: wczytanie PRG pod adres z nagłówka, przywrócenie stanu jak po resecie (układ pamięci z ROM-ami i KERNAL-em, wektory, rejestry VIC/TED/CIA, przerwania), start przez `SYS`/`RUN`. Rezydent w ROM cartridge (tryb XIP) nie zajmuje RAM-u gry; powrót do MiniUnix przez reset (programowy lub przycisk). Poza zasięgiem: zabezpieczenia, własne formaty dysku, cartridge-gry. Test: VICE z prawdziwymi `.prg`/`.d64`.
+
+## 2026-10-11 — Plan wersji 0.2
+Wszystkie planowane poprawki i rozszerzenia (XIP/C16, optymalizacja rozmiaru, ładowalne sterowniki, drukarka, taśma, montowanie woluminów, dyski 8/9, VFS + FS CBM DOS + polecenia DOS, `run` dla PRG z `SYS`/`RUN`, PET, C128) zebrane jako lista do zrobienia w `docs/roadmap-0.2.md`. Status: do potwierdzenia.
