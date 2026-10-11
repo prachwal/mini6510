@@ -104,6 +104,14 @@ x64sc ... -reu -reusize 512 -cartcrt build/c64/mini6510.crt                     
 C64_ROMS=roms python tests/test_c64_cart.py    # VICE test with the original ROMs (skipped without them)
 ```
 
+Screen right after power-on from the cartridge (POST, then the shell prompt):
+
+| With REU (ROM disk copied to REU) | Without REU (read-only ROM disk) |
+|---|---|
+| ![start reu](docs/img/c64-cart-start-reu.png) | ![start rom](docs/img/c64-cart-start-rom.png) |
+
+Working in the shell:
+
 | Cartridge + REU (writable) | Cartridge only (read-only ROM disk) |
 |---|---|
 | ![cart](docs/img/c64-cart-boot.png) | ![cart ro](docs/img/c64-cart-readonly.png) |
