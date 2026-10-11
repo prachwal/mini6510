@@ -5,7 +5,8 @@
         .include "platform.inc"
         .include "hw.inc"
         .include "post.inc"
-        .import LoadSystem, ReadBlk, WriteBlk, RomRdStart
+        .import LoadSystem, ReadBlk, WriteBlk, RomRdStart, IecInit, IecRead, IecWrite
+        .export LdrRead
         .import PrintStr, PutCRLF, PrintHex8, PrintDec16, PrtAY, RowAY, RowEnd, TestRange, ResultRam, DetectCpu
         .import MsgOk, MsgFail, MsgNmos, MsgCmos, MsgKb, MsgPostFail, MsgNoBoot
         .export PutChar, ConGotoXY, Reset
@@ -103,7 +104,7 @@ PostMain:
 
         ROW RowRamB
         lda #$10
-        ldx #$E8
+        ldx #$E7
         jsr TestRange
         jsr ResultRam
         jsr RowEnd
@@ -131,7 +132,16 @@ PostMain:
         ROW RowDisk
         lda #1
         sta post_disk
-        PRT MsgRomDisk
+        jsr IecInit             ; napęd 8 z dyskiem MiniUnix ma pierwszeństwo przed ROM
+        bcs @romd
+        bit drv_tr
+        bpl @ie
+        PRT MsgTcbDisk
+        jmp @dend
+@ie:    PRT MsgIecDisk
+        jmp @dend
+@romd:  PRT MsgRomDisk
+@dend:
         jsr RowEnd
 
         ; --- zegar i czas ---
@@ -683,9 +693,16 @@ KeyTabS:.byte 8, 13, 0, 0, 0, 0, 0, '@'
 
 ; ---------------- nośnik bloków (dysk w ROM cartridge + nakładka RAM, blk_rom.s) ----------------
 ReadBlock:                      ; A = napęd (ignorowany), X/Y = blok, ptr = bufor
+LdrRead:
+        lda blk_dev             ; 0 = dysk ROM, 1 = napęd IEC
+        bne @iec
         jmp ReadBlk
+@iec:   jmp IecRead
 WriteBlock:
+        lda blk_dev
+        bne @iec
         jmp WriteBlk
+@iec:   jmp IecWrite
 
 Unimpl: sec
         rts
@@ -697,12 +714,14 @@ MsgBanner:   .byte "BIOS PLUS4 V0.1",0
 MsgHeader:   .byte "TEST    RANGE           RESULT",0
 MsgLoaded:   .byte "OK",0
 MsgRomDisk:  .byte "OK 27KB ROM+RAM",0
+MsgIecDisk:  .byte "OK IEC 8",0
+MsgTcbDisk:  .byte "OK 1551 TCBM 8",0
 MsgTmrOk:    .byte "OK 100 HZ",0
 RowCpu:      .byte "CPU",0,0
 RowZp:       .byte "RAM",0,"0002-01FF",0
 RowRamA:     .byte "RAM",0,"0200-0FFF",0
-RowRamB:     .byte "RAM",0,"1000-E7FF",0
-RowBios:     .byte "BIOS",0,"E800-FFFF",0
+RowRamB:     .byte "RAM",0,"1000-E6FF",0
+RowBios:     .byte "BIOS",0,"E700-FFFF",0
 RowVic:      .byte "VIDEO",0,"FF00",0
 RowDisk:     .byte "DISK",0,"8000",0
 RowTmr:      .byte "TIMER",0,"FF00",0

@@ -57,7 +57,8 @@ def main():
 
     # --- BIOS (platform code + shared loader) ---
     objs = []
-    for src in sorted(P.glob('*.s')) + [ROOT / 'bios' / 'loader.s', ROOT / 'bios' / 'common.s']:
+    for src in sorted(P.glob('*.s')) + [ROOT / 'bios' / 'loader.s', ROOT / 'bios' / 'common.s'] + \
+               ([ROOT / 'bios' / 'iec.s', ROOT / 'bios' / 'drive.s'] if pc.get('IEC') else []):
         o = f'bios_{src.stem}.o'
         run(ca65, *inc, src, '-o', o)
         objs.append(o)

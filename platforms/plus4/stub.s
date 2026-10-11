@@ -1,9 +1,9 @@
 ; stub.s - start z cartridge Plus/4 (CART-1, $8000): KERNAL po resecie szuka "CBM" pod $8007 i bajtu 1 pod $8006,
-; wtedy wywołuje JSR $8000 (przed inicjalizacją KERNAL-a). Kopiujemy BIOS do RAM ($E800, $F800) i przejmujemy maszynę.
+; wtedy wywołuje JSR $8000 (przed inicjalizacją KERNAL-a). Kopiujemy BIOS do RAM ($E700, $F800) i przejmujemy maszynę.
         .include "bios.inc"
         .include "platform.inc"
         .include "hw.inc"
-        .import __JUMPTAB_LOAD__, __BIOS_LOAD__, __BIOS_SIZE__
+        .import __JUMPTAB_LOAD__, __BIOS_LOAD__, __BIOS_SIZE__, __DRV_LOAD__, __DRV_SIZE__
         .import Reset
 
         .segment "CARTHDR"
@@ -23,11 +23,13 @@ Boot:   sei
         sta ptr+1
         lda #0
         sta ptr2
-        lda #$E8
+        lda #$E7
         sta ptr2+1
-        lda #>(__BIOS_SIZE__ + 255)
+        lda #<(__BIOS_SIZE__ + __DRV_SIZE__)
         sta tmp
-        jsr Copy                ; zapis pod $E800 trafia do RAM (pod ROM)
+        lda #>(__BIOS_SIZE__ + __DRV_SIZE__)
+        sta tmp2
+        jsr CopyN               ; zapis pod $E700 trafia do RAM (pod ROM)
         lda #<__JUMPTAB_LOAD__
         sta ptr
         lda #>__JUMPTAB_LOAD__
@@ -60,3 +62,22 @@ Copy:   ldy #0                  ; ptr -> ptr2, tmp = liczba stron
         dec tmp
         bne @c
         rts
+
+CopyN:  ldy #0                  ; ptr -> ptr2, liczba bajtów w tmp (lo) / tmp2 (hi)
+@c:     lda tmp
+        ora tmp2
+        beq @d
+        lda (ptr),y
+        sta (ptr2),y
+        inc ptr
+        bne @a
+        inc ptr+1
+@a:     inc ptr2
+        bne @b
+        inc ptr2+1
+@b:     lda tmp
+        bne @e
+        dec tmp2
+@e:     dec tmp
+        jmp @c
+@d:     rts

@@ -1,19 +1,18 @@
 ; blk_rom.s - nośnik blokowy Plus/4: dysk w ROM cartridge (CART-1) + zapisywalna nakładka w RAM
-;   bloki 0..47   -> c1lo ($8000-$BFFF), od $9000 (pierwsze 4 KB zajmuje BIOS)
-;   bloki 48..107 -> c1hi ($C000-$FBFF)
-; Strona źródłowa = numer bloku + $90 (dla obu okien). ROM widać tylko przy $FF3E, więc czytnik kopiowany jest do RAM
+;   bloki 0..43   -> c1lo ($8000-$BFFF), od $9400 (pierwsze 5 KB zajmuje BIOS)
+;   bloki 44..103 -> c1hi ($C000-$FBFF)
+; Strona źródłowa = numer bloku + $94 (dla obu okien). ROM widać tylko przy $FF3E, więc czytnik kopiowany jest do RAM
 ; (RAMCODE) i działa z maskowanymi przerwaniami (IRQ przy ROM szedłby przez KERNAL).
         .include "bios.inc"
         .include "platform.inc"
         .include "hw.inc"
-        .export ReadBlk, WriteBlk, LdrRead, RomRdStart, RomRdEnd
+        .export ReadBlk, WriteBlk, RomRdStart, RomRdEnd
         .segment "BIOS"
 
 ; Zapisy trafiają do nakładki w RAM: OVL_SLOTS stron od $D000 (obszar wolny, jądro go nie używa) + tablica numerów
 ; bloków (ovl_map). Odczyt najpierw sprawdza nakładkę, potem ROM. Nakładka znika przy resecie (jak RAM-dysk).
 ; Zachowują X i Y (loader), C=1 błąd: A=1 numer bloku poza dyskiem, A=5 nakładka pełna.
-LdrRead:                        ; X/Y = blok, ptr = bufor
-ReadBlk:
+ReadBlk:                        ; X/Y = blok, ptr = bufor
         jsr OvlFind             ; C=0: A = numer slotu
         bcs @rom
         clc
@@ -96,7 +95,7 @@ RomRdStart:
         pha
         txa
         clc
-        adc #$90                ; strona źródła
+        adc #$94                ; strona źródła
         sta RAMCODE + (@src - RomRdStart) + 2     ; modyfikacja kopii w RAM
         ldy #2                  ; n = 2: CART-1 niski ($8000)
         cpx #ROM_SPLIT

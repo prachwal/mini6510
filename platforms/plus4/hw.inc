@@ -24,7 +24,7 @@ CHAR_BASE   = $D4       ; zestaw małe/duże litery z ROM ($D400)
 TEXT_COLOR  = $71       ; biały, jasność 7
 BG_COLOR    = $26       ; niebieski, jasność 2
 BORDER_COLOR= $46       ; niebieski, jasność 4
-IO_START_HI = $E8       ; jądro nie może sięgać BIOS-u ($E800)
+IO_START_HI = $E7       ; jądro nie może sięgać BIOS-u ($E700)
 LOAD_MIN_HI = $02
 ; zmienne BIOS w RAM ($0300-$03FF; test RAM $0200-$0FFF robimy zanim ich użyjemy)
 cur_lo      = $0300     ; wskaźnik kursora w pamięci ekranu
@@ -45,11 +45,48 @@ c_p         = $F8       ; 2 B: wskaźnik w pamięci ekranu
 c_t         = $FB       ; bajt roboczy
 scr_res     = $E0       ; wynik testu RAM $0200-$0FFF (przed startem jądra ZP $E0 jest wolna)
 scr_pg      = $E1
-; dysk w ROM cartridge: bloki 0-47 w c1lo od $9000, bloki 48-107 w c1hi od $C000; strona = numer bloku + $90
-ROM_SPLIT   = 48        ; pierwszy blok w c1hi
-OVL_PAGE0   = $D0       ; nakładka zapisów: strony $D000-$E7FF (24 bloki)
-OVL_SLOTS   = 24
+; dysk w ROM cartridge: bloki 0-43 w c1lo od $9400, bloki 44-103 w c1hi od $C000; strona = numer bloku + $94
+ROM_SPLIT   = 44        ; pierwszy blok w c1hi
+OVL_PAGE0   = $D0       ; nakładka zapisów: strony $D000-$E6FF (23 bloki)
+OVL_SLOTS   = 23
 ovl_cnt     = $03A0     ; liczba zajętych slotów nakładki
 ovl_map     = $03A1     ; 24 B: numer bloku w każdym slocie
 RAMCODE     = $0340     ; czytnik bloków kopiowany do RAM (działa przy ROM widocznym)
 RAMCODE_LEN = 96
+; IEC (serial bus on 6510 port $01): bit 0 DATA out, 1 CLK out, 2 ATN out (1 = pull low); bit 6 CLK in, 7 DATA in (1 = high)
+IEC_PORT    = $01
+IEC_ATN     = $04
+IEC_CLK     = $02
+IEC_DATA    = $01
+IEC_CLKIN   = $40
+IEC_DATAIN  = $80
+.macro IecHwInit
+        lda $00
+        ora #$07
+        and #$3F
+        sta $00
+.endmacro
+blk_dev     = $03C6     ; 0 = ROM disk, 1 = IEC drive (unit 8)
+iec_b       = $03C7
+iec_eoi     = $03C8     ; bit 7 = last byte / EOI
+iec_bc      = $03C9
+iec_r       = $03CA
+iec_i       = $03CB
+iec_to      = $03CC     ; wait timeout (units of ~1.1 ms)
+iec_trk     = $03CD
+iec_sec     = $03CE
+iec_spt     = $03CF
+iec_sx      = $03D0
+iec_sy      = $03D1
+iec_st      = $03D2     ; first character of the drive status
+iec_cmd     = $03D8     ; command buffer (up to 24 B)
+iec_try     = $03D3
+drv_tr      = $03D4     ; bit 7 = drive on TCBM (1551), else IEC (1541)
+iec_ts      = $03D5     ; TCBM status (PB bits 0-1)
+; TCBM (1551): 6525 TPI at $FEF0 (unit 8): PA data, PB status, PC handshake (bit 7 = drive ACK in, bit 6 = DAV out)
+TPI_PA      = $FEF0
+TPI_PB      = $FEF1
+TPI_PC      = $FEF2
+TPI_DDRA    = $FEF3
+TPI_DDRB    = $FEF4
+TPI_DDRC    = $FEF5

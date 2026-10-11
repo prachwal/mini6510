@@ -2,6 +2,7 @@ import glob, os
 from sfs import Disk
 k = open('kernel.bin', 'rb').read()
 DISK = os.environ.get('DISK_NAME', 'disk.img')
+if os.path.exists(DISK): os.remove(DISK)   # never reuse a stale image (size may differ)
 d = Disk(DISK, blocks=int(os.environ.get('DISK_BLOCKS', 2048)))
 d.format(k, load=int(os.environ.get('KBASE', 0x0400)), entry=int(open("entry.txt").read(), 16))
 d.mkdir('/bin')

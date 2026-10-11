@@ -20,7 +20,7 @@ def screen_char(code):
 
 
 class Vice:
-    def __init__(self, roms=None, disk=None, display=':77', port=6510, warp=True, cart=None, reu=True, extra=(), machine='c64'):
+    def __init__(self, roms=None, disk=None, display=':77', port=6510, warp=True, cart=None, reu=True, extra=(), machine='c64', d64=None):
         self.display, self.port, self.machine = display, port, machine
         self.scr_base = 0x0C00 if machine == 'plus4' else 0x0400
         self.roms = Path(roms or os.environ.get('PLUS4_ROMS' if machine == 'plus4' else 'C64_ROMS') or BUILD / 'roms')
@@ -55,6 +55,12 @@ class Vice:
                      '-chargen', str(self.roms / 'chargen.bin'),
                      ]
             args += ['-cartcrt', str(cart)] if cart else ['-autostart', str(BUILD / 'mini6510.prg'), '-autostartprgmode', '1']
+        if d64:   # true 1541-II on IEC unit 8 (DOS ROM next to the other ROMs: dos1541.bin)
+            dos = os.environ.get('DOS1541_ROM') or str(Path(os.environ.get('C64_ROMS', BUILD / 'roms')) / 'dos1541.bin')
+            if machine == "plus4":
+                args += ["-drive8type", "1551", "-dos1551", str(Path(os.environ.get("PLUS4_ROMS") or self.roms) / "dos1551.bin"), "-drive8truedrive", "-8", str(d64)]
+            else:
+                args += ["-drive8type", "1542", "-dos1541II", dos, "-drive8truedrive", "+iecdevice8", "-8", str(d64)]
         args += list(extra)
         if warp: args.append('-warp')
         self.proc = subprocess.Popen(args, env=self.env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
