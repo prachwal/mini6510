@@ -36,3 +36,8 @@ Sterownik napędu 8 jako urządzenie blokowe: IEC/1541 (C64) i TCBM/1551 (Plus/4
 
 ## 2026-10-11 — Tryb niskiej pamięci / XIP (branch feature/c16-xip)
 Cel: cartridge bez kopiowania czegokolwiek do RAM (C16/C116, 16 KB). Kod wykonywany z ROM, RAM tylko na zmienne. Na razie tylko projekt: `docs/xip.md` (do potwierdzenia: minimalny RAM 16 KB, własny zestaw znaków w ROM cartridge).
+
+## 2026-10-11 — Kandydaci na kolejne platformy (na później, do potwierdzenia)
+- **PET / CBM 8032 (80 kolumn):** nowa platforma `platforms/pet`. Do napisania: ekran 80×25 pod `$8000`, klawiatura (VIA/PIA), zegar 60 Hz, transport IEEE-488 (PIA 6520 + VIA) pod istniejącą warstwę blokową `bios/drive.s` (polecenia U1/U2). Uwaga na tablicę sektorów napędów 2031/4040/8050 i brak cartridge (bootloader z dysku lub ROM w gnieździe `$9000`). Test: VICE `xpet`.
+- **C128:** tryb C64 powinien ruszyć praktycznie bez zmian (test w `x128`). Tryb natywny (`platforms/c128`): MMU `$FF00`, 128 KB RAM, wideo VIC-IIe 40 kol. lub VDC 8563 80 kol., napęd 1571 przez ten sam transport IEC (1328 bloków, inna tablica sektorów).
+Status: do potwierdzenia (priorytet i kolejność).
