@@ -52,3 +52,18 @@ Confirmed by the user (2026-10-11). Per machine only the **start** is required a
 keyboard, interrupts, first block transport) and the kernel core. Everything beyond that (extra transports, printer, tape, clock,
 filters, utilities) is a loadable package or a program. A new port therefore needs: the monolithic core for the machine
 plus the packages that apply to it; shared packages stay identical across machines where the hardware is the same (e.g. IEC printer).
+
+## Volumes and paths (design)
+The cartridge ROM disk is the read-only **base volume** mounted at `/`: base programs in `/bin`, base drivers in `/lib/drv`
+(they are found there first). Other volumes are mounted in directories and addressed by path, no drive letters:
+| Volume | Medium | Mount point | Access |
+|---|---|---|---|
+| `rom` | cartridge ROM disk | `/` | read-only |
+| `ram` | RAM disk / REU | `/ram` (or `/tmp`) | read-write, lost at reset |
+| `drv` | disk drive (1541/1551) | `/disk` | read-write, persistent |
+| `tap` | tape | `/tape` | sequential |
+Examples: `ls /bin`, `cp /bin/greet /ram/g`, `cat /disk/notes.txt`, `cat big.txt > /ram/b.txt`, `mount drv /disk`.
+Lookup order for commands and drivers (`PATH`): `/ram/bin`, `/disk/bin`, then `/bin`, so a copy on disk or in RAM overrides the base version (an update
+without a new cartridge). Driver packages follow the same rule for `/lib/drv`.
+Mount table in the kernel: name, medium, first block, size, flags (read-only), mount directory; the BIOS call gets the volume number
+(today `A=drive` is ignored and must start being used).

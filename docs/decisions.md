@@ -53,3 +53,6 @@ Kolejny sterownik ładowalny: magnetofon (`/dev/tap`), dostęp sekwencyjny, blok
 
 ## 2026-10-11 — Rdzeń na maszynę może być monolitem
 Minimum na maszynę to start (boot + BIOS + rdzeń jądra), może być monolitem. Reszta (transporty dodatkowe, drukarka, taśma, zegar, filtry) jako ładowalne pakiety lub programy. Opis: `docs/drivers.md`.
+
+## 2026-10-11 — Montowanie woluminów, cartridge jako wolumin bazowy (na później, do potwierdzenia)
+ROM-dysk cartridge = wolumin bazowy `/` (tylko odczyt) z programami (`/bin`) i sterownikami (`/lib/drv`) bazowymi. RAM-dysk/REU pod `/ram`, napęd pod `/disk`, taśma pod `/tape`. Ścieżki zwykłe (bez liter napędów), polecenie `mount`/`umount`, PATH: `/ram/bin`, `/disk/bin`, `/bin` (kopia na zapisywalnym woluminie nadpisuje bazową). Opis: `docs/drivers.md`.
