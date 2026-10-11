@@ -56,3 +56,6 @@ Minimum na maszynę to start (boot + BIOS + rdzeń jądra), może być monolitem
 
 ## 2026-10-11 — Montowanie woluminów, cartridge jako wolumin bazowy (na później, do potwierdzenia)
 ROM-dysk cartridge = wolumin bazowy `/` (tylko odczyt) z programami (`/bin`) i sterownikami (`/lib/drv`) bazowymi. RAM-dysk/REU pod `/ram`, napęd pod `/disk`, taśma pod `/tape`. Ścieżki zwykłe (bez liter napędów), polecenie `mount`/`umount`, PATH: `/ram/bin`, `/disk/bin`, `/bin` (kopia na zapisywalnym woluminie nadpisuje bazową). Opis: `docs/drivers.md`.
+
+## 2026-10-11 — Zgodność wsteczna i uruchamianie gier (na później, do potwierdzenia)
+Cel: uruchamianie istniejących gier/PRG z dysków CBM DOS. Gra przejmuje całą maszynę, wyjście = reset (gry nie mają exit), więc system nie musi przeżyć uruchomienia gry. Polecenie `run`/`load`: wczytanie PRG pod adres z nagłówka, przywrócenie stanu jak po resecie (układ pamięci z ROM-ami i KERNAL-em, wektory, rejestry VIC/TED/CIA, przerwania), start przez `SYS`/`RUN`. Rezydent w ROM cartridge (tryb XIP) nie zajmuje RAM-u gry; powrót do MiniUnix przez reset (programowy lub przycisk). Poza zasięgiem: zabezpieczenia, własne formaty dysku, cartridge-gry. Test: VICE z prawdziwymi `.prg`/`.d64`.
