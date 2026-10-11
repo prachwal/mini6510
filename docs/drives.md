@@ -3,6 +3,11 @@
 The BIOS can use a real disk drive as the block device. The kernel does not change: it still calls
 `BIOS_ReadBlock` / `BIOS_WriteBlock` (X/Y = block, `ptr` = 256-byte buffer).
 
+| C64 + 1541 (IEC) | Plus/4 + 1551 (TCBM) |
+|---|---|
+| ![C64 boot from 1541](img/c64-drive-boot.png) | ![Plus/4 boot from 1551](img/plus4-drive-boot.png) |
+| ![C64 shell on 1541](img/c64-drive-shell.png) | ![Plus/4 shell on 1551](img/plus4-drive-shell.png) |
+
 ## Selection at POST
 `IecInit` (bios/drive.s) probes unit 8 in up to 10 rounds (the drive may still be resetting; a round without a drive
 takes about 0.3 s). Each round tries TCBM (Plus/4 only) and then IEC. A drive wins over the ROM/REU disk only when

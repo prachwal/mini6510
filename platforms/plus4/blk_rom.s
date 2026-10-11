@@ -108,6 +108,7 @@ RomRdStart:
         sta (ptr),y
         iny
         bne @src
+        sta ROM_BANK            ; z powrotem wewnętrzne ROM-y: znaki TED ($D400) są brane z ROM-u wysokiego
         sta TED_RAMON           ; RAM widoczny
         pla
         tay

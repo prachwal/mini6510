@@ -144,6 +144,11 @@ bit-banged by the BIOS (no KERNAL). A drive holding a MiniUnix disk (`build/<pla
 REU/ROM disk, and writes persist in the image. Tests run on VICE's true-drive emulation (`tests/test_c64_drive.py`,
 `tests/test_plus4_drive.py`; ROMs `dos1541.bin` / `dos1551.bin` needed). Details: [docs/drives.md](docs/drives.md).
 
+| C64 + 1541 (IEC) | Plus/4 + 1551 (TCBM) |
+|---|---|
+| ![C64 boot from 1541](docs/img/c64-drive-boot.png) | ![Plus/4 boot from 1551](docs/img/plus4-drive-boot.png) |
+| ![C64 shell on 1541](docs/img/c64-drive-shell.png) | ![Plus/4 shell on 1551](docs/img/plus4-drive-shell.png) |
+
 ## Layout
 
 | Path | Contents |

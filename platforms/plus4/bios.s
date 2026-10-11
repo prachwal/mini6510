@@ -38,6 +38,7 @@ Reset:
         ldx #$FF
         txs
         sta TED_RAMON           ; $FF3F: RAM zamiast ROM wszędzie poza I/O $FD00-$FF3F
+        sta ROM_BANK            ; wewnętrzne ROM-y (znaki TED z $D400 nie mogą pochodzić z cartridge)
         ZPPASS $00
         ZPPASS $FF
         ZPPASS $A5
