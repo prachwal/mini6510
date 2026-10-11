@@ -62,3 +62,6 @@ Cel: uruchamianie istniejących gier/PRG z dysków CBM DOS. Gra przejmuje całą
 
 ## 2026-10-11 — Plan wersji 0.2
 Plan podzielony na wersje: 0.2 (mała i rezydentna w ROM: optymalizacja, XIP, woluminy `/` i `/ram`, snake), 0.3 (sterowniki ładowalne, dyski 8/9, drukarka, dźwięk, tetris), 0.4 (VFS + CBM DOS, `run` dla gier, taśma). Reszta w „Ideas”: nowe maszyny, pacman, testy na sprzęcie. Opis: `docs/roadmap-0.2.md`. Status: do potwierdzenia.
+
+## 2026-10-11 — Wspólny BIOS grafiki
+Wymóg użytkownika: jeden wspólny interfejs grafiki w BIOS-ie dla wszystkich maszyn (nie ładny, tylko wspólny). Wąski kontrakt: `GfxCaps`, `GfxMode`, `Clear`, `Plot`, `Fill`, `Line`; aplikacje czytają rozmiar i dostosowują układ (w komórkach 8×8). Efekty i sprite'y poza kontraktem. Wersja 0.3. Opis: `docs/graphics.md`. Status: do potwierdzenia.

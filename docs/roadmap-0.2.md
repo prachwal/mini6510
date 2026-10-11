@@ -15,6 +15,7 @@ Done when: Plus/4 16 KB and C64 boot from ROM with no code copied to RAM, regres
 - [ ] Loadable driver packages in `/lib/drv`: max 1 block (256 B), page relocation, `tools/mkdrv.py`, driver table (`DrvLoad/Find/Unload`), devices by name.
 - [ ] Two drives (8 and 9): unit number as a variable instead of `IEC_UNIT = 8`, per-volume state, `/d8`, `/d9`, VICE `-9` test.
 - [ ] Printer package (IEC unit 4, `/dev/lp`, ASCII to PETSCII).
+- [ ] Common graphics BIOS (`docs/graphics.md`): `GfxCaps`, `GfxMode`, `Plot`, `Clear`, `Fill`, `Line`, implemented per platform (C64, Plus/4 first); a demo program that adapts to the reported size.
 - [ ] Sound contract (`Tone`, `Quiet`, `SoundCaps`) as package `snd`; Tetris as the second portable program.
 Done when: a package loads, relocates and registers on both platforms; 8+9 test passes; `cat x > /dev/lp` lands in the VICE printer file.
 
