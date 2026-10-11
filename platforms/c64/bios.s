@@ -4,10 +4,10 @@
         .include "bios.inc"
         .include "hw.inc"
         .include "post.inc"
-        .import LoadSystem, ReadBlk, WriteBlk
+        .import LoadSystem, ReadBlk, WriteBlk, IecInit, IecRead, IecWrite
         .import PrintStr, PutCRLF, PrintHex8, PrintDec16, PrtAY, RowAY, RowEnd, TestRange, ResultRam, DetectCpu
         .import MsgOk, MsgFail, MsgNmos, MsgCmos, MsgKb, MsgPostFail, MsgNoBoot
-        .export PutChar, ConGotoXY, Reset
+        .export PutChar, ConGotoXY, Reset, LdrRead
 
         .segment "JUMPTAB"
         jmp Unimpl              ; $F800 I2C_READ
@@ -140,7 +140,13 @@ PostMain:
         jsr CartInit            ; instalacja czytnika banków w RAM, blk_mode = REU
 .endif
         ROW RowDisk
-        jsr ReuProbe
+        jsr IecInit             ; napęd 8 z dyskiem MiniUnix ma pierwszeństwo przed REU/ROM
+        bcs @noiec
+        lda #1
+        sta post_disk
+        PRT MsgIecDisk
+        jmp @dend
+@noiec: jsr ReuProbe
 .ifdef CART
         bcs @cartrom
 .else
@@ -812,9 +818,16 @@ KeyTabS:.byte 8, 13, 0, 0, 0, 0, 0, 0
 
 ; ---------------- nośnik bloków ----------------
 ReadBlock:                      ; A = napęd (ignorowany), X/Y = blok, ptr = bufor
+LdrRead:
+        lda blk_dev             ; 0 = REU/ROM, 1 = napęd IEC
+        bne @iec
         jmp ReadBlk
+@iec:   jmp IecRead
 WriteBlock:
+        lda blk_dev
+        bne @iec
         jmp WriteBlk
+@iec:   jmp IecWrite
 
 Unimpl: sec
         rts
@@ -826,6 +839,7 @@ MsgBanner:   .byte "BIOS C64 V0.1",0
 MsgHeader:   .byte "TEST    RANGE           RESULT",0
 MsgLoaded:   .byte "OK",0
 MsgNoReu:    .byte "NO REU",0
+MsgIecDisk:  .byte "OK IEC 8",0
 MsgPlusRom:  .byte " +ROM",0
 MsgRomDisk:  .byte "OK RO 120 KB ROM",0
 MsgTmrOk:    .byte "OK 100 HZ",0

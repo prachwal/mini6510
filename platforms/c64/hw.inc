@@ -65,3 +65,34 @@ ROM_BLK_HI  = $01
 RAMCODE     = $0340     ; czytnik banków kopiowany do RAM (musi działać przy $01=$37, poza $8000-$9FFF i $E000+)
 RAMCODE_LEN = 96       ; liczba kopiowanych bajtów czytnika (assert w blk_cart.s)
 XFER_BUF    = $0200     ; bufor 256 B przy kopiowaniu ROM -> REU
+; IEC (serial bus on CIA 2 port A): bit 3 ATN out, 4 CLK out, 5 DATA out (1 = pull low); bit 6 CLK in, 7 DATA in (1 = high)
+IEC_PORT    = $DD00
+IEC_ATN     = $08
+IEC_CLK     = $10
+IEC_DATA    = $20
+IEC_CLKIN   = $40
+IEC_DATAIN  = $80
+.macro IecHwInit
+        lda $DD02
+        ora #$38
+        and #$3F
+        sta $DD02
+.endmacro
+blk_dev     = $03C6     ; 0 = REU/ROM disk, 1 = IEC drive (unit 8)
+iec_b       = $03C7
+iec_eoi     = $03C8     ; bit 7 = last byte / EOI
+iec_bc      = $03C9
+iec_r       = $03CA
+iec_i       = $03CB
+iec_to      = $03CC     ; wait timeout (units of ~1.1 ms)
+iec_trk     = $03CD
+iec_sec     = $03CE
+iec_spt     = $03CF
+iec_sx      = $03D0
+iec_sy      = $03D1
+iec_st      = $03D2     ; first character of the drive status
+iec_try     = $03D3
+drv_tr      = $03D4
+iec_cmd     = $03D8     ; command buffer (up to 24 B)
+iec_rp      = $03D6     ; wait repeat count
+iec_rep     = $03D7

@@ -1,12 +1,11 @@
 ; blk_cart.s - nośnik blokowy wariantu cartridge (Magic Desk): REU (zapisywalny) albo dysk w ROM (tylko odczyt)
         .include "bios.inc"
         .include "hw.inc"
-        .export ReadBlk, WriteBlk, LdrRead, RomRdStart, RomRdEnd
+        .export ReadBlk, WriteBlk, RomRdStart, RomRdEnd
         .import ReuRead, ReuWrite
         .segment "BIOS"
 
-LdrRead:                        ; X/Y = blok, ptr = bufor; C=1 błąd (A = kod)
-ReadBlk:
+ReadBlk:                        ; X/Y = blok, ptr = bufor; C=1 błąd (A = kod)
         lda blk_mode
         bne @rom
         jmp ReuRead

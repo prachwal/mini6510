@@ -20,26 +20,47 @@ def screen_char(code):
 
 
 class Vice:
-    def __init__(self, roms=None, disk=None, display=':77', port=6510, warp=True, cart=None, reu=True, extra=()):
-        self.display, self.port = display, port
-        self.roms = Path(roms or os.environ.get('C64_ROMS') or BUILD / 'roms')
+    def __init__(self, roms=None, disk=None, display=':77', port=6510, warp=True, cart=None, reu=True, extra=(), machine='c64', d64=None):
+        self.display, self.port, self.machine = display, port, machine
+        self.scr_base = 0x0C00 if machine == 'plus4' else 0x0400
+        self.roms = Path(roms or os.environ.get('PLUS4_ROMS' if machine == 'plus4' else 'C64_ROMS') or BUILD / 'roms')
         self.disk = Path(disk) if disk else BUILD / 'disk.img'
         self.env = dict(os.environ, DISPLAY=display)
         self.xvfb = subprocess.Popen(['Xvfb', display, '-screen', '0', '800x600x24'],
                                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         time.sleep(0.5)
         real = (self.roms / 'kernal.bin').exists()
-        args = ['x64sc', '-default', '+sound', '-sounddev', 'dummy', '-remotemonitor',
+        if machine == 'plus4' and real and not (self.roms / 'functionlo.bin').exists():
+            # a combined 32 KB 3-plus-1 image is split into the function ROM halves VICE wants
+            src = (self.roms / '3plus1.bin').read_bytes()
+            tmp = ROOT / 'build' / 'plus4' / 'vice-roms'; tmp.mkdir(parents=True, exist_ok=True)
+            for n in ('kernal.bin', 'basic.bin'): shutil.copy(self.roms / n, tmp / n)
+            (tmp / 'functionlo.bin').write_bytes(src[:16384]); (tmp / 'functionhi.bin').write_bytes(src[16384:])
+            self.roms = tmp
+        args = ['xplus4' if machine == 'plus4' else 'x64sc', '-default', '+sound', '-sounddev', 'dummy', '-remotemonitor',
                 '-remotemonitoraddress', f'ip4://127.0.0.1:{port}',
                 ]
+        if machine == 'plus4':
+            reu = False
         if reu:
             args += ['-reu', '-reusize', '512']
             if not cart: args += ['-reuimage', str(self.disk), '+reuimagerw']   # cartridge boot: REU starts empty
-        if real:
+        if real and machine == 'plus4':
+            args += ['-kernal', str(self.roms / 'kernal.bin'), '-basic', str(self.roms / 'basic.bin'),
+                     '-functionlo', str(self.roms / 'functionlo.bin'), '-functionhi', str(self.roms / 'functionhi.bin')]
+            if cart:
+                args += ['-cart', str(cart)]      # 32 KB raw image = CART-1 lo + hi (smart attach)
+        elif real:
             args += ['-kernal', str(self.roms / 'kernal.bin'), '-basic', str(self.roms / 'basic.bin'),
                      '-chargen', str(self.roms / 'chargen.bin'),
                      ]
             args += ['-cartcrt', str(cart)] if cart else ['-autostart', str(BUILD / 'mini6510.prg'), '-autostartprgmode', '1']
+        if d64:   # true 1541-II on IEC unit 8 (DOS ROM next to the other ROMs: dos1541.bin)
+            dos = os.environ.get('DOS1541_ROM') or str(Path(os.environ.get('C64_ROMS', BUILD / 'roms')) / 'dos1541.bin')
+            if machine == "plus4":
+                args += ["-drive8type", "1551", "-dos1551", str(Path(os.environ.get("PLUS4_ROMS") or self.roms) / "dos1551.bin"), "-drive8truedrive", "-8", str(d64)]
+            else:
+                args += ["-drive8type", "1542", "-dos1541II", dos, "-drive8truedrive", "+iecdevice8", "-8", str(d64)]
         args += list(extra)
         if warp: args.append('-warp')
         self.proc = subprocess.Popen(args, env=self.env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
@@ -74,7 +95,7 @@ class Vice:
 
     def screen(self):
         """Text on the 40x25 screen read from screen RAM ($0400)."""
-        out = self.mon('m 0400 07e7', 1.0)
+        out = self.mon('m %04x %04x' % (self.scr_base, self.scr_base + 0x3e7), 1.0)
         mem = bytearray()
         for ln in out.splitlines():
             i = ln.find('>C:')
@@ -91,11 +112,21 @@ class Vice:
             time.sleep(0.5)
         raise TimeoutError(f'{text!r} not seen; screen:\n{self.screen()}')
 
-    def type(self, text, delay=0.18):
+    KEYSYM = {' ': 'space', '!': 'exclam', '"': 'quotedbl', '#': 'numbersign', '$': 'dollar', '%': 'percent',
+              '&': 'ampersand', "'": 'apostrophe', '(': 'parenleft', ')': 'parenright', '*': 'asterisk', '+': 'plus',
+              ',': 'comma', '-': 'minus', '.': 'period', '/': 'slash', ':': 'colon', ';': 'semicolon', '<': 'less',
+              '=': 'equal', '>': 'greater', '?': 'question', '@': 'at', '[': 'bracketleft', '\\': 'backslash',
+              ']': 'bracketright', '^': 'asciicircum', '_': 'underscore', '`': 'grave', '{': 'braceleft',
+              '|': 'bar', '}': 'braceright', '~': 'asciitilde', '\n': 'Return', '\b': 'BackSpace'}
+
+    def type(self, text, delay=0.12, hold=0.06):
+        """Type through the host keyboard; each key is held `hold` s so that VICE (which polls the host keys once per frame)
+        never misses it, also without warp mode."""
         for ch in text:
-            if ch == '\n': subprocess.run(['xdotool', 'key', '--delay', '60', 'Return'], env=self.env)
-            elif ch == '\b': subprocess.run(['xdotool', 'key', 'BackSpace'], env=self.env)
-            else: subprocess.run(['xdotool', 'type', '--delay', '60', ch], env=self.env)
+            k = self.KEYSYM.get(ch, ch)
+            subprocess.run(['xdotool', 'keydown', k], env=self.env)
+            time.sleep(hold)
+            subprocess.run(['xdotool', 'keyup', k], env=self.env)
             time.sleep(delay)
 
     def cmd(self, line, expect, timeout=30):
