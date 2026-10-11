@@ -6,6 +6,8 @@ is released when its tests pass. Everything is **to be confirmed**; details in `
 
 ## 0.2 - Small and ROM-resident (theme: cartridge without copying to RAM)
 - [ ] Kernel size optimization (-10-20 %): size map per function, shared subroutines, tables, zero page, packed texts, rare commands to `/bin`, `.if FEATURE_X`.
+- [ ] Test loop: one command runs `scripts/test.py` for every platform on each change (VICE tests where the ROMs exist); CI runs build, size check and the generic tests.
+- [ ] Rendering test: compare a VICE screenshot with a reference image (the screen-text tests missed the garbled glyphs on the Plus/4).
 - [ ] Memory budget per machine (table below) checked at build time: `scripts/build.py` fails when a part exceeds its limit and prints the size map per part.
 - [ ] Boot-medium builds: one monolith per machine and boot method (`cart`, `iec`, `tcbm`, `reu`) containing only its own block transport; other transports become packages (`docs/en/drivers.md`).
 - [ ] Low-RAM cartridge mode, execute in place (C16/C116, 16 KB): ROM stays mapped, RAM only for variables (`docs/en/xip.md`).
