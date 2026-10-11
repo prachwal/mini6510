@@ -17,7 +17,7 @@
 - Do potwierdzenia: sprzęt (tylko VICE), NTSC (`TICK_DIV` 8949), nakładka nietrwała, brak IEC/1551, C16/C116 (16 KB RAM) nieobsługiwane.
 
 ## Napęd 1551 (TCBM)
-Patrz [drives.md](drives.md). Obraz BIOS w c1lo ma 5 KB (dysk ROM: 104 bloki od `$9400`, c1lo 44 bloki + c1hi 60), BIOS biegnie od `$E700`; napęd 8 z dyskiem MiniUnix ma pierwszeństwo przed dyskiem ROM.
+Patrz [drives.md](../en/drives.md). Obraz BIOS w c1lo ma 5 KB (dysk ROM: 104 bloki od `$9400`, c1lo 44 bloki + c1hi 60), BIOS biegnie od `$E700`; napęd 8 z dyskiem MiniUnix ma pierwszeństwo przed dyskiem ROM.
 
 ### Note: character ROM and cartridge banks
 
