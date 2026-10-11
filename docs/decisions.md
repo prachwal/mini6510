@@ -74,3 +74,6 @@ Monolit zawiera dokładnie jeden transport nośnika rozruchowego, zależnie od s
 
 ## 2026-10-11 — musicplay (Atari, SAP)
 Narzędzie `musicplay plik.sap` na Atari: wczytanie SAP (typ B najpierw), załadowanie bloków, `INIT` z numerem utworu, `PLAYER` z timera co ramkę (`TickSet hz`). `.sid` na Atari tylko przez konwersję offline. Wymaga platformy Atari (nierozpoczętej), więc w „Ideas”. Opis: `docs/musicplay.md`. Status: do potwierdzenia.
+
+## 2026-10-11 — musicplay (C64, SID)
+Narzędzie `musicplay plik.sid` na C64: PSID najpierw (RSID później przez `run`), wczytanie pod adres z nagłówka z kontrolą kolizji z jądrem/BIOS-em, `init` z numerem utworu, `play` z timera 50/60 Hz (`TickSet`), klawisze, wyciszenie SID po wyjściu. Pierwszy kandydat po 0.2 (platforma C64 istnieje). Opis: `docs/musicplay.md`. Status: do potwierdzenia.

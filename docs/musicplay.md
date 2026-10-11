@@ -21,3 +21,26 @@ POKEY and music code run on the same interrupt, so the tick must not collide wit
 
 ## Open
 Which SAP types to support first (default B), memory conflict handling (default: refuse), conversion `.sid` to `.sap` offline (separate tool, not in the OS).
+
+# musicplay (C64, SID files) - design
+
+Status: **idea**, the first candidate after 0.2 because the C64 platform already exists. Command: `musicplay file.sid [song]`.
+
+## PSID format (to confirm against the format description)
+Header (big endian): magic `PSID`/`RSID`, version, data offset (`$76` for v2), load address (0 = first two data bytes, little endian), `init`, `play`
+(0 = `init` installs its own interrupt), songs, start song, speed (bit per song: 0 = frame rate 50/60 Hz, 1 = CIA timer 60 Hz), name/author/released (32 B each),
+v2+: flags (clock PAL/NTSC, SID model), start page, page length. Then the data: the 6502 code and music.
+PSID tunes run in a prepared environment (ROMs/IO mapped by a known scheme); RSID needs a real C64 environment (CIA IRQ, KERNAL).
+
+## Player
+1. Read the file via the VFS, check the header and that `load..load+length` does not overlap the kernel, BIOS or the player. Overlap = error.
+2. Copy the music to its load address; set the interrupt rate (`TickSet 50/60 Hz`, or the CIA value for speed bit 1).
+3. `init` with A = song number; each tick calls `play` (or leaves the tune's own interrupt, `play = 0`).
+4. Keys (`KeyGet`): space pause, `+`/`-` song, `q` quit: stop the tick, clear SID (`$D404/$D40B/$D412 = 0`, volume 0), return to the shell.
+5. Show name, author and song number (header fields).
+
+## Limits
+- RSID/CIA-dependent tunes: start with PSID only, RSID later through `run` (a reset-like environment, reset = exit).
+- Tunes loading over the system area (`$A000+` slots, BIOS `$F800+`): refused; common `$1000` loads must be checked against the C64 memory map first.
+- The tick must support 50/60 Hz (PAL/NTSC from the header flags) and a CIA-timed mode.
+- Test in VICE: record the SID register writes (monitor trace) or the sound output to a file and compare with a reference.
