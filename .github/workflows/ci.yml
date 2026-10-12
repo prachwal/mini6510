@@ -7,6 +7,6 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: { python-version: '3.12' }
-      - run: sudo apt-get update && sudo apt-get install -y cc65
+      - run: sudo apt-get update && sudo apt-get install -y cc65 vice
       - run: pip install -r requirements.txt
       - run: python scripts/test.py
