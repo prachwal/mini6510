@@ -33,11 +33,20 @@ MINIUNIX: PROSTY SYSTEM DLA 6510.
 ## Szybki start
 
 ```sh
-sudo apt install cc65 && pip install -r requirements.txt
-python scripts/build.py     # build/bios.rom, build/kernel.bin, build/disk.img
-python scripts/test.py      # wszystkie testy (~2 min)
+sudo apt install cc65 vice && pip install -r requirements.txt
+python scripts/build.py     # build/generic/{bios.rom,kernel.bin,disk.img}
+python scripts/test.py      # buduje wszystkie platformy; dostępne testy (~2-3 min)
 python scripts/run.py "ls -l\recho hi | upper\r"
 ```
 
 Dokumentacja projektowa po polsku jest w [`docs/pl/`](docs/pl/): `platform.md`, `bios-api.md`, `architecture.md`, `decisions.md`. Wersja angielska: [`docs/en/`](docs/en/).
 Pełny opis funkcji i układ katalogów: [README.md](README.md).
+
+## Status weryfikacji
+
+Testy modelowe wykonują BIOS i jądro w Pythonie. Porty C64 i Plus/4 mają również testy VICE,
+które są pomijane bez wymaganych narzędzi lub ROM-ów. Runner obecnie oznacza SKIP jako PASS;
+zielony CI nie potwierdza wykonania testów emulatora ani działania na rzeczywistym sprzęcie.
+Backendy 1541/IEC i 1551/TCBM są zaimplementowane.
+
+Uwagi z przeglądu i priorytety: [przegląd projektu](docs/pl/project-review-2026-10-12.md).

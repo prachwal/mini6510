@@ -68,10 +68,10 @@ MINIUNIX: PROSTY SYSTEM DLA 6510.
 ## Quick start
 
 ```sh
-sudo apt install cc65          # or: brew install cc65  (needs ca65/ld65)
+sudo apt install cc65 vice     # ca65/ld65; cartconv is needed when building the C64 cartridge
 pip install -r requirements.txt
-python scripts/build.py        # -> build/bios.rom, build/kernel.bin, build/disk.img
-python scripts/test.py         # builds and runs all suites (~2 min)
+python scripts/build.py        # -> build/generic/bios.rom, build/generic/kernel.bin, build/generic/disk.img
+python scripts/test.py         # builds all platforms and runs available suites (~2-3 min)
 python scripts/run.py "ls\rcat readme.txt\recho hi | upper\r"   # boot and type keys, print the screen
 ```
 
@@ -89,7 +89,7 @@ python tests/test_c64_vice.py              # headless VICE test (needs x64sc, Xv
 ```
 
 Caveats: tested in VICE with both stand-in ROMs and the original KERNAL 901227-03 / BASIC / charset (`C64_ROMS=<dir> python tests/test_c64_vice.py`, ROMs are not in the repo, `roms/` is git-ignored); date is fixed (2026-10-11), TOD starts at 09:00;
-no IEC/1541/SD disk backend yet; PET is not supported. See [platforms/c64/test/README.md](platforms/c64/test/README.md).
+the 1541 IEC backend is implemented (see [Disk drives](#disk-drives)); no SD backend or PET support is provided. See [platforms/c64/test/README.md](platforms/c64/test/README.md).
 
 ### Cartridge (Magic Desk)
 
@@ -183,9 +183,21 @@ it ends up in `/bin` on the disk image. See [`examples/`](examples/README.md).
 
 ## Status
 
-Everything is verified against the **Python model** of the platform only. Running it on a real
-6510 machine or another emulator requires that machine to honour the contract in
-[docs/en/platform.md](docs/en/platform.md) (some items there are still marked "to be confirmed").
+The generic platform is tested by executing the assembled BIOS and kernel in the **Python machine model**.
+C64 and Plus/4 also have VICE integration tests, including cartridge and drive boot paths;
+they skip when the required emulator tools or ROMs are unavailable. Real-hardware validation is not established by these tests.
+A custom 6510 machine must honour [docs/en/platform.md](docs/en/platform.md)
+(some items there are still marked "to be confirmed").
+
+### CI coverage
+
+At commit `d772239` (2026-10-12), [CI](https://github.com/prachwal/mini6510/actions/runs/38208830350)
+built all three platforms and passed 11 Python-model suites. The five VICE suites completed in 0.0 seconds.
+The runner currently accepts `SKIP` as success and prints `PASS`, so a green workflow does not establish
+that the emulator suites executed. Provide the tools and ROMs required by each test and inspect its output
+when validating a platform port. Reporting skips separately and adding a required emulator job remain follow-up work.
+
+Review findings and suggested priorities: [docs/pl/project-review-2026-10-12.md](docs/pl/project-review-2026-10-12.md).
 Known limits: no memory protection, no users/permissions, files ≤ 64 KB, polled console input.
 
 ## License
